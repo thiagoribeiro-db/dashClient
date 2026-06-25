@@ -79,6 +79,13 @@ PATCHES = [
         "} else if(missing.length && !filtered){",
         "} else if(false && missing.length && !filtered){"
     ),
+    # 6. Gráfico Identificação: agrupa por tipo de consulta (barras empilhadas)
+    #    Antes: eixo X = etapas (Exibição/Input/Erro), 3 séries por tipo.
+    #    Agora: eixo X = tipos (Danoner/Loja/CNPJ), empilhado por etapa.
+    (
+        r"makeChart('chartIdentificacao',{ type:'bar',\n    data:{ labels:['Exibição','Input','Erro'], datasets:[\n      { label:'Danoner · Cód. Danoner', backgroundColor:'#0E3C73', borderRadius:6, data:[evCount('codigo danoner exibicao'),evCount('codigo danoner input'),evCount('codigo danoner inesperado')] },\n      { label:'Cliente · Código da Loja', backgroundColor:'#1F6FE0', borderRadius:6, data:[evCount('codigo cliente exibicao'),evCount('codigo cliente input'),evCount('codigo cliente inesperado')] },\n      { label:'Cliente · CNPJ', backgroundColor:'#4F90F0', borderRadius:6, data:[evCount('cnpj exibicao'),evCount('cnpj input'),evCount('cnpj inesperado')] },\n    ]},\n    options:{ ...BASEOPTS, scales:{ x:{ grid:{display:false}, ticks:{color:'#64748B'} }, y:{ grid:GRID, beginAtZero:true, ticks:{color:'#94A3B8'} } } } });",
+        r"makeChart('chartIdentificacao',{ type:'bar',\n    data:{ labels:['Cód. Danoner','Código da Loja','CNPJ'], datasets:[\n      { label:'Exibição', backgroundColor:'#0E3C73', borderRadius:6, data:[evCount('codigo danoner exibicao'),evCount('codigo cliente exibicao'),evCount('cnpj exibicao')] },\n      { label:'Input', backgroundColor:'#1F6FE0', borderRadius:6, data:[evCount('codigo danoner input'),evCount('codigo cliente input'),evCount('cnpj input')] },\n      { label:'Erro', backgroundColor:'#F43F5E', borderRadius:6, data:[evCount('codigo danoner inesperado'),evCount('codigo cliente inesperado'),evCount('cnpj inesperado')] },\n    ]},\n    options:{ ...BASEOPTS, scales:{ x:{ stacked:true, grid:{display:false}, ticks:{color:'#64748B'} }, y:{ stacked:true, grid:GRID, beginAtZero:true, ticks:{color:'#94A3B8'} } } } });"
+    ),
 ]
 
 for old, new in PATCHES:
