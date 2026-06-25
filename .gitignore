@@ -1,10 +1,9 @@
 bases/
-*.csv
 *.pdf
 *.py.bak
 __pycache__/
 .env
-# HTMLs de período (histórico local, não vai pro repo)
+# HTMLs de período (histórico local)
 OnePage_*.html
-# Design source (não necessário no repo)
-Danone CAC - Painel.html
+# CSVs de bases brutas (não vão pro repo)
+bases/*.csv

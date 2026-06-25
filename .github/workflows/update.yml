@@ -1,15 +1,12 @@
 name: Atualizar Dashboard
 
 on:
-  schedule:
-    # Seg–Sex às 9h Brasília (12h UTC)
-    - cron: '0 12 * * 1-5'
+  push:
+    paths:
+      - '_events.csv'
+      - '_tickets.csv'
+      - 'Danone CAC - Painel.html'
   workflow_dispatch:
-    inputs:
-      start_date:
-        description: 'Data início (YYYY-MM-DD) — vazio usa o padrão da variável BLIP_START'
-        required: false
-        default: ''
 
 jobs:
   update:
@@ -26,21 +23,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Gerar _snapshot.json
-        env:
-          BLIP_ROUTER_KEY: ${{ secrets.BLIP_ROUTER_KEY }}
-          BLIP_TRANSBORDO_KEY: ${{ secrets.BLIP_TRANSBORDO_KEY }}
-          BLIP_START: ${{ inputs.start_date || vars.BLIP_START }}
-        run: python gerar_snapshot.py
-
-      - name: Gerar index.html
-        run: python build_index.py
+      - name: Gerar index.html (bundle + auto-load)
+        run: python patch_bundle.py
 
       - name: Commit e push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add _snapshot.json index.html
+          git add index.html
           git diff --cached --quiet \
             && echo "Nenhuma mudança." \
-            || (git commit -m "data: snapshot $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)
+            || (git commit -m "build: regenera index.html $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)
