@@ -33,20 +33,35 @@ if MARKER not in content:
 
 content = content.replace(MARKER, MARKER + AUTO_LOAD + r"\n", 1)
 
-# Patch: KPI de Atendimento usa total de registros (sem deduplicação de usuário)
+# Patches de métricas
 PATCHES = [
+    # 1. Título do card: Taxa → Autoatendimento
     (
-        "value:TK.users.size, sub:'Atendidos por humano'",
-        "value:TK.rows.length, sub:'Total de atendimentos'"
+        "Taxa de Autoatendimento",
+        "Autoatendimento"
+    ),
+    # 2. Valor: percentual → contagem de COHORT.auto
+    (
+        "const rate=(COHORT.pedidos||0)>0 ? Math.round((COHORT.auto/COHORT.pedidos)*1000)/10 : 0;",
+        ""
+    ),
+    (
+        "${rate}%",
+        "${fmt(COHORT.auto||0)}"
+    ),
+    # 3. Sub-texto: remove "X de Y resolveram" → "de Y que chegaram a pedidos"
+    (
+        "${fmt(COHORT.auto||0)} de ${fmt(COHORT.pedidos||0)} resolveram sem operador",
+        "de ${fmt(COHORT.pedidos||0)} que chegaram a pedidos"
     ),
 ]
 
 for old, new in PATCHES:
-    if old not in content:
-        print(f"AVISO: trecho não encontrado para patch: {old[:60]}")
-    else:
+    if old and old not in content:
+        print(f"AVISO: trecho não encontrado: {old[:60]}")
+    elif old:
         content = content.replace(old, new, 1)
-        print(f"OK patch: {old[:50]}...")
+        print(f"OK patch: {old[:55]}...")
 
 with open(OUTPUT, "w", encoding="utf-8") as f:
     f.write(content)
