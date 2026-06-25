@@ -74,6 +74,11 @@ PATCHES = [
         "${rate}%",
         "0%"
     ),
+    # 5. Suprime alerta de categorias ausentes no mapeamento
+    (
+        "} else if(missing.length && !filtered){",
+        "} else if(false && missing.length && !filtered){"
+    ),
 ]
 
 for old, new in PATCHES:
