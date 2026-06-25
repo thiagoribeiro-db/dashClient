@@ -69,6 +69,11 @@ PATCHES = [
         "${fmt(COHORT.auto||0)} de ${fmt(COHORT.pedidos||0)} resolveram sem operador",
         "de ${fmt(COHORT.pedidos||0)} que chegaram a pedidos"
     ),
+    # 4. Barra de progresso ainda usa ${rate}% — remove a div inteira
+    (
+        "${rate}%",
+        "0%"
+    ),
 ]
 
 for old, new in PATCHES:
