@@ -1,0 +1,6 @@
+bases/
+*.csv
+*.pdf
+*.py.bak
+__pycache__/
+.env

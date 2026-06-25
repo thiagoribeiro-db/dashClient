@@ -1,0 +1,43 @@
+name: Atualizar Dashboard Danone CAC
+
+on:
+  schedule:
+    # Seg–Sex às 9h Brasília (12h UTC)
+    - cron: '0 12 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'Data início (YYYY-MM-DD) — vazio usa o padrão da variável BLIP_START'
+        required: false
+        default: ''
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Gerar _snapshot.json
+        env:
+          BLIP_ROUTER_KEY: ${{ secrets.BLIP_ROUTER_KEY }}
+          BLIP_TRANSBORDO_KEY: ${{ secrets.BLIP_TRANSBORDO_KEY }}
+          BLIP_START: ${{ inputs.start_date || vars.BLIP_START }}
+        run: python gerar_snapshot.py
+
+      - name: Commit e push do snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _snapshot.json
+          git diff --cached --quiet \
+            && echo "Nenhuma mudança no snapshot." \
+            || (git commit -m "data: snapshot $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)
