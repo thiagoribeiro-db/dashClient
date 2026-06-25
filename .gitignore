@@ -7,3 +7,7 @@ __pycache__/
 OnePage_*.html
 # CSVs de bases brutas (não vão pro repo)
 bases/*.csv
+# Claude Code (memória local)
+.claude/
+# Arquivos locais avulsos
+mapemanento de tracking.md
