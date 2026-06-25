@@ -4,3 +4,7 @@ bases/
 *.py.bak
 __pycache__/
 .env
+# HTMLs de período (histórico local, não vai pro repo)
+OnePage_*.html
+# Design source (não necessário no repo)
+Danone CAC - Painel.html

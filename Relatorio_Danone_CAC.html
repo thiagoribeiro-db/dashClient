@@ -1,0 +1,578 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+<title>Relatório Danone CAC — OnePage &amp; Detalhamento</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:Georgia,'Times New Roman',serif;background:#e7eef8;display:flex;flex-direction:column;overflow:hidden}
+.tabs{flex:0 0 auto;display:flex;align-items:center;gap:0;background:#e7eef8;padding:0 26px;border-bottom:2px solid #0f2748}
+.tabs .brand{font-weight:700;font-size:15px;color:#0f2748;margin-right:26px;letter-spacing:.3px;display:flex;flex-direction:column;justify-content:center;padding:11px 0 9px}
+.tabs .brand small{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:8px;letter-spacing:2.5px;color:#0a4fb4;text-transform:uppercase}
+.tabs button.tab{background:none;color:#54658a;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:15px 18px 13px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;transition:.15s}
+.tabs button.tab:hover{color:#0f2748}
+.tabs button.tab.active{color:#0f2748;border-bottom-color:#0a4fb4}
+.tabs .spacer{flex:1}
+.tabs #btnUp{background:none;color:#0f2748;border:1.5px solid #0f2748;border-radius:0;padding:8px 16px;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.15s}
+.tabs #btnUp:hover{background:#0f2748;color:#e7eef8} .tabs #btnUp:disabled{border-color:#9aaece;color:#9aaece;cursor:default}
+.tabs .info{font-family:Arial,Helvetica,sans-serif;color:#54658a;font-size:9px;letter-spacing:.5px;text-transform:uppercase;text-align:right;margin-left:16px;min-width:110px}
+.tabs .info b{color:#0f2748}
+#prog{flex:0 0 auto;display:none;align-items:center;gap:12px;background:#0f2748;color:#e7eef8;padding:7px 26px;font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.5px}
+#progtrack{flex:1;height:3px;background:#33476b;overflow:hidden}
+#progbar{height:100%;width:0;background:#0a4fb4;transition:width .2s}
+.frames{flex:1 1 auto;position:relative;background:#e7eef8}
+.frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#e7eef8}
+.frames iframe.active{display:block}
+</style></head><body>
+<div class="tabs">
+  <div class="brand">Danone CAC<small>Central de Atendimento</small></div>
+  <button class="tab active" id="t0" onclick="show(0)">OnePage</button>
+  <button class="tab" id="t1" onclick="show(1)">Detalhamento</button>
+  <button class="tab" id="t2" onclick="show(2)">Funil &amp; Cenários</button>
+  <div class="spacer"></div>
+  <button id="btnUp" onclick="doRefresh()">Atualizar dados</button>
+  <div class="info">Dados de<br><b id="ts">—</b></div>
+</div>
+<div id="prog"><span id="progtxt">Buscando…</span><div id="progtrack"><div id="progbar"></div></div></div>
+<div class="frames">
+  <iframe id="f0" class="active"></iframe>
+  <iframe id="f1"></iframe>
+  <iframe id="f2"></iframe>
+</div>
+
+<script>
+/* ===== CHAVES EMBUTIDAS (acesso só-leitura aos analytics do bot) ===== */
+const ROUTER_KEY="ZGFub25lY2Fjcm91dGVycHJkOlZNTHoyWHdyZEd3cmRYS2ZkbFpa";
+const TRANSBORDO_KEY="dHJhbnNib3Jkb2Rhbm9uZWNhY3ByZDpveDZrYjJkZEQ0STFpTlpPYUVsaw==";
+const PERIOD_START="2026-05-20";
+const INITIAL_DATA = {"period": {"start": "2026-05-20", "end": "2026-06-15"}, "ts": "18/06/2026 16:59", "onepage": {"users": {"active": 68, "engaged": 68, "recCount": 8, "recRate": 11.8, "recVar": 33.3, "rejection": 0.0}, "messages": {"total": 1593, "sent": 1009, "received": 584, "active": 36, "sentPct": 63.3, "receivedPct": 36.7, "totalVar": -51.3, "sentVar": -50.5, "receivedVar": -52.7, "activeVar": 16.1}, "flow": {"retention": 39, "retentionPct": 57.4, "attendance": 29, "attendancePct": 42.6, "exception": 66, "exceptionPct": 97.1, "total": 68, "retentionVar": -2.5, "attendanceVar": 38.1, "exceptionVar": 32.0}, "blocks": [{"name": "[X.0.0.X] [Msg]", "count": 38}, {"name": "[P.0.0.1] [Menu] [Input] [Val]", "count": 30}, {"name": "[P.0.0.2] [Input] [Val]", "count": 21}, {"name": "[S.0.0.3] [Menu] [Input] [Val]", "count": 15}, {"name": "[S.0.0.8] [Input] [Val]", "count": 15}, {"name": "[S.0.1.2] [Input] [Val]", "count": 15}, {"name": "[S.0.0.2] [Menu] [Input] [Val]", "count": 13}, {"name": "[S.0.0.5] [Input] [Val]", "count": 10}, {"name": "[S.0.0.8] [Input] [Val]", "count": 10}, {"name": "[S.0.0.6] [Input] [Val]", "count": 5}], "kpis": {"codValido": 10, "codInvalido": 7, "lojasLocalizadas": 10, "lojaNFcnpj": 16, "lojaNFcod": 1, "pedidosNF": 5, "transbInicial": 17, "transbAtend": 14, "transbForaH": 5, "finalizadosBot": 1, "inatividade": 29}, "satisfaction": {"facil": 6, "media": 4, "dificil": 6, "validas": 16, "inatividade": 11}, "desk": {"available": true, "total": 35, "closed": 29, "transferred": 5, "waiting": 0, "open": 1, "lost": 0, "queueAvg": "15:05:29", "queueMax": "3d 21:35:07", "frAvg": "00:04:44", "frMax": "00:56:33", "attAvg": "15:35:44", "attMax": "6d 01:55:33", "agents": [{"name": "jullia.alves", "n": 23, "fr": "00:05:29", "at": "16:14:05", "transferred": false}, {"name": "millena.pinto", "n": 7, "fr": "00:01:53", "at": "1d 01:45:41", "transferred": false}, {"name": "maxwell.martins", "n": 5, "fr": "—", "at": "00:27:25", "transferred": true}]}}, "funnel": {"perfil_sel": 39, "perfil_err": 7, "danoner_input": 21, "danoner_ok": 8, "danoner_nf": 1, "perfil_cliente": 18, "perfil_danoner": 10, "perfil_inativ": 6, "perfil_inesp": 5, "cliente_sel": 34, "cliente_cnpj": 16, "cliente_codigo": 7, "cliente_inativ": 7, "cli_cod_input": 11, "cli_cod_err": 3, "cli_cnpj_input": 38, "cli_cnpj_err": 4, "cnpj_ok": 0, "cnpj_nf": 16, "pedidos_ok": 7, "pedidos_mais": 0, "pedidos_espec": 0, "pedidos_nf": 3, "transb_inicial": 17, "transb_atend": 14, "transb_fora": 5, "transbordados": 17, "finalizados_bot": 1, "csat_exib": 14, "csat_facil": 6, "csat_media": 4, "csat_dificil": 6, "csat_inatividade": 11}, "recs": [{"phone": "5511989060093", "name": ".", "tipo": "Funcionário Danone", "codigoLoja": "0450199961", "cnpjLoja": "21.590.391/0001-11", "last": "2026-06-02", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": true, "order_any": true, "finalized": true, "invalid": false, "valid": true}, "narr": "Esse contato informou um código válido, a loja foi localizada, consultou pedido mas nada foi encontrado, chegou à pesquisa de satisfação (concluiu).", "first": "2026-06-02T11:00:00-03:00", "events": [{"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450049905"}, {"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450199961"}, {"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450031385"}, {"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450049905"}, {"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450199961"}, {"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "pedido não encontrado dados", "val": "cliente 450031385"}, {"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "pedido não encontrado dados", "val": "cliente 450049905"}, {"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450049905"}, {"t": "2026-06-02T11:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450199961"}, {"t": "2026-06-02T11:42:45-03:00", "prec": true, "cat": "pesquisa relatorio", "val": "saudacao | Fácil | Olá"}, {"t": "2026-06-02T11:43:36-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "450049905"}, {"t": "2026-06-02T11:46:03-03:00", "prec": true, "cat": "pesquisa relatorio", "val": "saudacao | Fácil | Não"}, {"t": "2026-06-02T11:46:38-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "450199961"}, {"t": "2026-06-02T12:25:32-03:00", "prec": true, "cat": "pesquisa relatorio", "val": "Fácil | ."}]}, {"phone": "5535998697873", "name": "Layane", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "00.836.942/0001-04", "last": "2026-05-26", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-26T09:00:00-03:00", "events": [{"t": "2026-05-26T09:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 836942000104"}]}, {"phone": "5548991271926", "name": "Thaynara", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-02", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5584987560150", "name": "Laís 🧚🏻", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-03", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5574988583629", "name": "Odacy Azevedo Silva", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "59.819.330/0001-56", "last": "2026-05-27", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": true, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, chegou à pesquisa de satisfação (concluiu).", "first": "2026-05-27T11:00:00-03:00", "events": [{"t": "2026-05-27T11:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 59819330000156"}, {"t": "2026-05-27T12:15:00-03:00", "prec": true, "cat": "pesquisa relatorio", "val": "Fácil | Quero fazer"}]}, {"phone": "5579981663983", "name": "Augusto Oliveira", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-22", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5531987393210", "name": "Rose", "tipo": "Funcionário Danone", "codigoLoja": "0450049980", "cnpjLoja": "08.335.717/0002-87", "last": "2026-05-21", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": true}, "narr": "Esse contato informou um código válido, a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-21T10:00:00-03:00", "events": [{"t": "2026-05-21T10:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450049980"}, {"t": "2026-05-21T10:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450049980"}, {"t": "2026-05-21T10:09:52-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "0450049980"}]}, {"phone": "5521982934048", "name": "Elvis", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "07.403.490/0001-16", "last": "2026-06-10", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5532988544267", "name": "Fabiana Baldez", "tipo": "CLIENTE", "codigoLoja": "0450201373", "cnpjLoja": "04.641.376/0233-49", "last": "2026-05-29", "flags": {"any": true, "store_ok": true, "order_found": true, "order_nf": false, "order_any": true, "finalized": false, "invalid": false, "valid": true}, "narr": "Esse contato informou um código válido, a loja foi localizada, o pedido foi encontrado, não chegou à pesquisa (provável abandono).", "first": "2026-05-29T07:00:00-03:00", "events": [{"t": "2026-05-29T07:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450201373"}, {"t": "2026-05-29T07:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450201373"}, {"t": "2026-05-29T07:00:00-03:00", "prec": false, "cat": "API detalhes pedido", "val": "pedido A804244-1548"}, {"t": "2026-05-29T07:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450201373"}, {"t": "2026-05-29T07:58:54-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "Fabiana"}]}, {"phone": "557730190031", "name": "Adevania", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "23.090.164/0001-52", "last": "2026-05-26", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": true, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, chegou à pesquisa de satisfação (concluiu).", "first": "2026-05-25T15:00:00-03:00", "events": [{"t": "2026-05-25T15:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 23090164000152"}, {"t": "2026-05-26T11:54:15-03:00", "prec": true, "cat": "pesquisa relatorio", "val": "Média | Não, obrigada!"}]}, {"phone": "5563984446042", "name": "Marilene", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "25.077.124/0001-04", "last": "2026-05-26", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-20T13:00:00-03:00", "events": [{"t": "2026-05-20T13:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 25077124000104"}]}, {"phone": "5543991956630", "name": "Carlos", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "45.698.243/0001-83", "last": "2026-06-11", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-11T11:00:00-03:00", "events": [{"t": "2026-06-11T11:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 45698243000183"}]}, {"phone": "5516981855146", "name": "Oliveira vendas", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-28", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5514997288275", "name": "scalizesilvana", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-10", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5515996552557", "name": "Mercado Jardim Clarice", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "29.852.478/0001-21", "last": "2026-06-11", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-02T10:00:00-03:00", "events": [{"t": "2026-06-02T10:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 29852478000121"}]}, {"phone": "5573981236828", "name": "Nilda Silva", "tipo": "Sou Danoner", "codigoLoja": "0450315371", "cnpjLoja": "05.846.287/0007-84", "last": "2026-06-01", "flags": {"any": true, "store_ok": false, "order_found": true, "order_nf": false, "order_any": true, "finalized": true, "invalid": false, "valid": false}, "narr": "Esse contato o pedido foi encontrado, chegou à pesquisa de satisfação (concluiu).", "first": "2026-06-01T09:00:00-03:00", "events": [{"t": "2026-06-01T09:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450315371"}, {"t": "2026-06-01T09:00:00-03:00", "prec": false, "cat": "API detalhes pedido", "val": "pedido 1007352-1764"}, {"t": "2026-06-01T09:04:41-03:00", "prec": true, "cat": "pesquisa relatorio", "val": ""}]}, {"phone": "5519997747082", "name": "Jhenifer", "tipo": "Funcionário Danone", "codigoLoja": "0450309900", "cnpjLoja": "50.948.371/0023-83", "last": "2026-06-11", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": true, "order_any": true, "finalized": false, "invalid": false, "valid": true}, "narr": "Esse contato informou um código válido, a loja foi localizada, consultou pedido mas nada foi encontrado, não chegou à pesquisa (provável abandono).", "first": "2026-06-11T10:00:00-03:00", "events": [{"t": "2026-06-11T10:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450309900"}, {"t": "2026-06-11T10:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450309900"}, {"t": "2026-06-11T10:00:00-03:00", "prec": false, "cat": "pedido não encontrado dados", "val": "cliente 450309900"}, {"t": "2026-06-11T10:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450309900"}, {"t": "2026-06-11T10:45:41-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "450309900"}]}, {"phone": "5519989432176", "name": "Caroline", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "49.372.702/0001-95", "last": "2026-05-26", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-21T11:00:00-03:00", "events": [{"t": "2026-05-21T11:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 49372702000195"}]}, {"phone": "5511999269386", "name": "{}", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "37.768.269/0003-94", "last": "2026-06-01", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-28T09:00:00-03:00", "events": [{"t": "2026-05-28T09:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 37768269000394"}]}, {"phone": "5519991959479", "name": "Carla Fontarolli", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-11", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5531982451274", "name": "Thiago Ribeiro", "tipo": "Funcionário Danone", "codigoLoja": "0450044723", "cnpjLoja": "01.206.034/0001-08", "last": "2026-05-20", "flags": {"any": true, "store_ok": false, "order_found": false, "order_nf": false, "order_any": true, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato consultou pedidos, não chegou à pesquisa (provável abandono).", "first": "2026-05-20T09:00:00-03:00", "events": [{"t": "2026-05-20T09:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450044723"}]}, {"phone": "5511940061334", "name": "Dp Advogados", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-03", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5584994175872", "name": "{}", "tipo": "Funcionário Danone", "codigoLoja": "0450319652", "cnpjLoja": "54.632.622/0001-61", "last": "2026-06-01", "flags": {"any": true, "store_ok": true, "order_found": true, "order_nf": false, "order_any": true, "finalized": false, "invalid": false, "valid": true}, "narr": "Esse contato informou um código válido, a loja foi localizada, o pedido foi encontrado, não chegou à pesquisa (provável abandono).", "first": "2026-05-29T09:00:00-03:00", "events": [{"t": "2026-05-29T09:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450319652"}, {"t": "2026-05-29T09:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450319652"}, {"t": "2026-05-29T09:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450319652"}, {"t": "2026-05-29T09:17:04-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "450319652"}, {"t": "2026-06-01T08:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450319652"}, {"t": "2026-06-01T08:00:00-03:00", "prec": false, "cat": "API detalhes pedido", "val": "pedido A804865-105"}]}, {"phone": "5519992683832", "name": "Juliana", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "56.393.933/0001-40", "last": "2026-05-27", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-27T12:00:00-03:00", "events": [{"t": "2026-05-27T12:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 56393933000140"}]}, {"phone": "5537998273003", "name": "Arthur Felipe.", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-23", "flags": {"any": true, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": true, "invalid": false, "valid": false}, "narr": "Esse contato chegou à pesquisa de satisfação (concluiu).", "first": "2026-05-23T19:18:18-03:00", "events": [{"t": "2026-05-23T19:18:18-03:00", "prec": true, "cat": "pesquisa relatorio", "val": "Fácil | Ta ok"}]}, {"phone": "5595991622919", "name": "Eildo", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "11.238.745/0001-00", "last": "2026-06-02", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-26T17:00:00-03:00", "events": [{"t": "2026-05-26T17:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 11238745000100"}]}, {"phone": "554130124509", "name": "Lis", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "07.953.689/0001-18", "last": "2026-06-05", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-05T16:00:00-03:00", "events": [{"t": "2026-06-05T16:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 7953689000118"}]}, {"phone": "5533988782511", "name": "Leidiane Sousa", "tipo": "Funcionário Danone", "codigoLoja": "0450045657", "cnpjLoja": "07.263.762/0003-91", "last": "2026-05-28", "flags": {"any": true, "store_ok": true, "order_found": true, "order_nf": false, "order_any": true, "finalized": true, "invalid": false, "valid": true}, "narr": "Esse contato informou um código válido, a loja foi localizada, o pedido foi encontrado, chegou à pesquisa de satisfação (concluiu).", "first": "2026-05-28T10:00:00-03:00", "events": [{"t": "2026-05-28T10:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450045657"}, {"t": "2026-05-28T10:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450045657"}, {"t": "2026-05-28T10:00:00-03:00", "prec": false, "cat": "API detalhes pedido", "val": "pedido A802865-2222"}, {"t": "2026-05-28T10:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450045657"}, {"t": "2026-05-28T10:58:03-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "0450045657"}, {"t": "2026-05-28T10:59:29-03:00", "prec": true, "cat": "pesquisa relatorio", "val": ""}]}, {"phone": "5561981392431", "name": "Andrey", "tipo": "CLIENTE", "codigoLoja": "0450302399", "cnpjLoja": "00.025.841/0001-53", "last": "2026-05-26", "flags": {"any": true, "store_ok": true, "order_found": true, "order_nf": false, "order_any": true, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, o pedido foi encontrado, não chegou à pesquisa (provável abandono).", "first": "2026-05-26T09:00:00-03:00", "events": [{"t": "2026-05-26T09:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 25841000153"}, {"t": "2026-05-26T09:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450302399"}, {"t": "2026-05-26T09:00:00-03:00", "prec": false, "cat": "API detalhes pedido", "val": "pedido 1001037-1077"}]}, {"phone": "5521995727692", "name": "Davi", "tipo": "CLIENTE", "codigoLoja": "0450302723", "cnpjLoja": "31.635.857/0006-16", "last": "2026-05-21", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": true, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, consultou pedidos, não chegou à pesquisa (provável abandono).", "first": "2026-05-21T15:00:00-03:00", "events": [{"t": "2026-05-21T15:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 31635857000616"}, {"t": "2026-05-21T15:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450302723"}]}, {"phone": "5517996781661", "name": "Rafael Nunes", "tipo": "Funcionário Danone", "codigoLoja": "1234566789", "cnpjLoja": "", "last": "2026-06-01", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": true, "valid": true}, "narr": "Esse contato informou um código válido, teve código recusado (digitou: \"Troca de senha; Essa conta só serve pra ver estátua de pedido ?\"), a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-01T08:00:00-03:00", "events": [{"t": "2026-06-01T08:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 1234566789"}, {"t": "2026-06-01T08:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 1234566789"}, {"t": "2026-06-01T08:00:00-03:00", "prec": false, "cat": "retorno abi pusca falha", "val": "loja 1234566789"}, {"t": "2026-06-01T08:36:44-03:00", "prec": true, "cat": "codigo danoner relatório inválido", "val": "Troca de senha"}, {"t": "2026-06-01T08:47:10-03:00", "prec": true, "cat": "codigo danoner relatório inválido", "val": "Essa conta só serve pra ver estátua de pedido ?"}, {"t": "2026-06-01T08:47:31-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "1234566789"}]}, {"phone": "5592992044960", "name": "Renato Carvalho", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-05", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5511993800086", "name": "Miller BOTELHO", "tipo": "Funcionário Danone", "codigoLoja": "0450166181", "cnpjLoja": "45.802.428/0003-58", "last": "2026-05-27", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5511910171814", "name": "Ernani", "tipo": "", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-29", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5524992908761", "name": "Dante Holzer", "tipo": "Funcionário Danone", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-26", "flags": {"any": true, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": true, "valid": false}, "narr": "Esse contato teve código recusado (digitou: \"3125 e 13460\"), não chegou à pesquisa (provável abandono).", "first": "2026-05-26T11:07:04-03:00", "events": [{"t": "2026-05-26T11:07:04-03:00", "prec": true, "cat": "codigo danoner relatório inválido", "val": "3125 e 13460"}]}, {"phone": "5522997371282", "name": "Dr Yan", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-11", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5511972464433", "name": "Luana Mais Distribuidora e F&K", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-02", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5588988456868", "name": "Alan", "tipo": "Funcionário Danone", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-21", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5571984796499", "name": "Nilda", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-29", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5521990023696", "name": "Heliete Evangelista", "tipo": "", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-11", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5544991735757", "name": "Claudio Henrique", "tipo": "CLIENTE", "codigoLoja": "0450032560", "cnpjLoja": "75.315.333/0042-87", "last": "2026-06-09", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": true, "order_any": true, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, consultou pedido mas nada foi encontrado, não chegou à pesquisa (provável abandono).", "first": "2026-06-08T18:00:00-03:00", "events": [{"t": "2026-06-08T18:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 75315333004287"}, {"t": "2026-06-08T18:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450032560"}, {"t": "2026-06-08T18:00:00-03:00", "prec": false, "cat": "pedido não encontrado dados", "val": "cliente 450032560"}]}, {"phone": "5511994265022", "name": "Eduardo", "tipo": "CLIENTE", "codigoLoja": "0450309200", "cnpjLoja": "04.742.665/0007-17", "last": "2026-06-02", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": true, "order_any": true, "finalized": true, "invalid": false, "valid": true}, "narr": "Esse contato informou um código válido, a loja foi localizada, consultou pedido mas nada foi encontrado, chegou à pesquisa de satisfação (concluiu).", "first": "2026-06-02T07:00:00-03:00", "events": [{"t": "2026-06-02T07:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450309200"}, {"t": "2026-06-02T07:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450309200"}, {"t": "2026-06-02T07:00:00-03:00", "prec": false, "cat": "pedido não encontrado dados", "val": "cliente 450309200"}, {"t": "2026-06-02T07:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450309200"}, {"t": "2026-06-02T07:29:57-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "Eduardo"}, {"t": "2026-06-02T07:31:31-03:00", "prec": true, "cat": "pesquisa relatorio", "val": "saudacao | Fácil | Ficou melhor para verificar os pedidos"}]}, {"phone": "5521964185220", "name": "sabrina jane", "tipo": "Funcionário Danone", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-05", "flags": {"any": true, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": true, "valid": false}, "narr": "Esse contato teve código recusado (código incompleto/errado), não chegou à pesquisa (provável abandono).", "first": "2026-06-05T15:17:21-03:00", "events": [{"t": "2026-06-05T15:17:21-03:00", "prec": true, "cat": "codigo danoner relatório inválido", "val": "3124"}]}, {"phone": "5588999379077", "name": "Mara", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "60.209.286/0001-41", "last": "2026-06-01", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-29T15:00:00-03:00", "events": [{"t": "2026-05-29T15:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 60209286000141"}]}, {"phone": "5511959240020", "name": "Ana", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "61.813.333/0003-96", "last": "2026-06-10", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5567998475449", "name": "Pedro Henrique", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "47.468.096/0001-80", "last": "2026-06-03", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-03T13:00:00-03:00", "events": [{"t": "2026-06-03T13:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 47468096000180"}]}, {"phone": "5527998264651", "name": "Edilene", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-27", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5517997095945", "name": "André Bispo", "tipo": "Funcionário Danone", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-01", "flags": {"any": true, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": true, "valid": false}, "narr": "Esse contato teve código recusado (digitou: \"Seria pra trocar a senha do RE\"), não chegou à pesquisa (provável abandono).", "first": "2026-06-01T08:33:50-03:00", "events": [{"t": "2026-06-01T08:33:50-03:00", "prec": true, "cat": "codigo danoner relatório inválido", "val": "Seria pra trocar a senha do RE"}]}, {"phone": "5511980433105", "name": "Fabiana Sousa Cruz", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "48.253.313/0001-88", "last": "2026-05-26", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-22T15:00:00-03:00", "events": [{"t": "2026-05-22T15:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 48253313000188"}]}, {"phone": "5521971176911", "name": ".", "tipo": "Funcionário Danone", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-10", "flags": {"any": true, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": true, "valid": false}, "narr": "Esse contato teve código recusado (código incompleto/errado), não chegou à pesquisa (provável abandono).", "first": "2026-06-10T14:29:47-03:00", "events": [{"t": "2026-06-10T14:29:47-03:00", "prec": true, "cat": "codigo danoner relatório inválido", "val": "34893"}]}, {"phone": "5567996253258", "name": "Danielli", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "36.664.345/0001-97", "last": "2026-06-03", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-03T15:00:00-03:00", "events": [{"t": "2026-06-03T15:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 36664345000197"}]}, {"phone": "5587996590865", "name": "Mario", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "04.100.973/0001-53", "last": "2026-06-05", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-05T11:00:00-03:00", "events": [{"t": "2026-06-05T11:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 4100973000153"}]}, {"phone": "5581999630567", "name": "Daniele", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "29.474.162/0101-06", "last": "2026-06-09", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-08T20:00:00-03:00", "events": [{"t": "2026-06-08T20:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 29474162010106"}]}, {"phone": "5521992020216", "name": "lluccas", "tipo": "Funcionário Danone", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-25", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5545999147047", "name": "Pablo", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-29", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5521964211121", "name": "Andressa", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "30.614.628/0001-48", "last": "2026-06-02", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-29T15:00:00-03:00", "events": [{"t": "2026-05-29T15:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 30614628000148"}, {"t": "2026-06-02T12:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 30614628000148"}]}, {"phone": "5512992617432", "name": "🍀", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-28", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5511926003417", "name": "Daniel Lima Stork Logistics Transporte de Congelados e Refrigerados", "tipo": "", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-02", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5548998091528", "name": "Comercial Rede Preço Fácil - Maria Luiza", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-02", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5585981493470", "name": "Caio Marques", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-06-01", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5511969273264", "name": "Marcela", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "58.439.652/0001-07", "last": "2026-06-05", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-04T18:00:00-03:00", "events": [{"t": "2026-06-04T18:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 58439652000107"}]}, {"phone": "5571991146779", "name": "Fernanda Fernandes", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "", "last": "2026-05-26", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5571996998059", "name": "Roberta", "tipo": "CLIENTE", "codigoLoja": "0450313318", "cnpjLoja": "40.924.536/0001-18", "last": "2026-05-28", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": true, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, consultou pedidos, não chegou à pesquisa (provável abandono).", "first": "2026-05-28T13:00:00-03:00", "events": [{"t": "2026-05-28T13:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 40924536000118"}, {"t": "2026-05-28T13:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450313318"}]}, {"phone": "5511910101103", "name": "Rogério", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "54.362.038/0001-33", "last": "2026-06-17", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-06-13T11:00:00-03:00", "events": [{"t": "2026-06-13T11:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 54362038000133"}]}, {"phone": "5575998155347", "name": "Vanessa", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "39.233.543/0004-37", "last": "2026-05-26", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-22T08:00:00-03:00", "events": [{"t": "2026-05-22T08:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 39233543000437"}]}, {"phone": "5535991326387", "name": "Douglas Junior", "tipo": "Funcionário Danone", "codigoLoja": "0450049086", "cnpjLoja": "17.943.291/0003-16", "last": "2026-06-12", "flags": {"any": false, "store_ok": false, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).", "first": "", "events": []}, {"phone": "5511970704325", "name": "Ricardo Pereira", "tipo": "Funcionário Danone", "codigoLoja": "0450311357", "cnpjLoja": "93.209.765/0616-80", "last": "2026-06-01", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": true, "finalized": false, "invalid": true, "valid": true}, "narr": "Esse contato informou um código válido, teve código recusado (código incompleto/errado), a loja foi localizada, consultou pedidos, não chegou à pesquisa (provável abandono).", "first": "2026-06-01T12:00:00-03:00", "events": [{"t": "2026-06-01T12:00:00-03:00", "prec": false, "cat": "API buscar loja", "val": "loja 450311357"}, {"t": "2026-06-01T12:00:00-03:00", "prec": false, "cat": "API consulta pedidos", "val": "cliente 450311357"}, {"t": "2026-06-01T12:00:00-03:00", "prec": false, "cat": "relatorio dados lojas encontrado", "val": "loja 450311357"}, {"t": "2026-06-01T12:26:13-03:00", "prec": true, "cat": "codigo danoner relatório inválido", "val": "00450311357"}, {"t": "2026-06-01T12:26:47-03:00", "prec": true, "cat": "codigo danoner relatório válido", "val": "0450311357"}]}, {"phone": "5535992258494", "name": "Gabriel", "tipo": "CLIENTE", "codigoLoja": "", "cnpjLoja": "17.954.546/0001-84", "last": "2026-05-26", "flags": {"any": true, "store_ok": true, "order_found": false, "order_nf": false, "order_any": false, "finalized": false, "invalid": false, "valid": false}, "narr": "Esse contato a loja foi localizada, não chegou à pesquisa (provável abandono).", "first": "2026-05-25T11:00:00-03:00", "events": [{"t": "2026-05-25T11:00:00-03:00", "prec": false, "cat": "API buscar loja por cnpj", "val": "CNPJ 17954546000184"}]}]};
+
+const ENDPOINT="https://msging.net/commands",ANALYTICS="postmaster@analytics.msging.net",CRM="postmaster@crm.msging.net",DESK="postmaster@desk.msging.net";
+const BLIP_USER="https://danonenutriexpert.blip.ai/application/detail/danonecacrouterprd/users/";
+const LABEL={"API buscar loja":"🔍 Busca de loja por código","API buscar loja por cnpj":"🔍 Busca de loja por CNPJ","API consulta pedidos":"📦 Consulta de pedidos","API consulta ultimo pedido":"📦 Consulta do último pedido","API consulta mais pedidos":"📦 Consulta de mais pedidos","API detalhes pedido":"✅ Detalhes do pedido (ENCONTRADO)","relatorio dados lojas encontrado":"🏪 Loja localizada na base","relatório lojas validada":"🏪 Loja validada","codigo danoner relatório válido":"✅ Código informado: VÁLIDO","codigo danoner relatório inválido":"⛔ Código informado: INVÁLIDO","codigo danoner input":"⌨️ Digitou o código","codigo danoner inesperado":"❓ Resposta inesperada no código","codigo cliente input":"⌨️ Digitou código de cliente","pedido não encontrado dados":"❌ Pedido NÃO encontrado","pedido não encontrado exibicao":"❌ Mensagem: pedido não encontrado","pesquisa relatorio":"⭐ Pesquisa de satisfação (fim)","Erro codigo loja origem":"⚠️ Erro no código de loja","retorno abi pusca falha":"⚠️ Falha no retorno da busca (API)"};
+const STORE_OK=new Set(["relatorio dados lojas encontrado","relatório lojas validada","API buscar loja","API buscar loja por cnpj"]);
+const ORDER_FOUND=new Set(["API detalhes pedido"]);
+const ORDER_NF=new Set(["pedido não encontrado dados","pedido não encontrado exibicao"]);
+const ORDER_ANY=new Set(["API consulta pedidos","API consulta ultimo pedido","API consulta mais pedidos","API detalhes pedido"]);
+const FINAL=new Set(["pesquisa relatorio"]);
+const INVALID=new Set(["codigo danoner relatório inválido","Erro codigo loja exibicao","Erro codigo loja origem"]);
+const VALID=new Set(["codigo danoner relatório válido","relatório lojas validada"]);
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function tf(iso,prec){if(!iso)return "—";const m=String(iso).match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);if(!m)return String(iso).slice(0,16);return prec?`${m[3]}/${m[2]} ${m[4]}:${m[5]}`:`${m[3]}/${m[2]} ~${m[4]}h`;}
+function blip(ph){return BLIP_USER+esc(ph)+"@wa.gw.msging.net";}
+function fmtP(s){const m=String(s).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}/${m[2]}/${m[1]}`:s;}
+function nz(v,suf){return (v==null)?"—":(v+(suf||""));}
+function vstr(v){return v==null?"—":String(v).replace(".",",");}
+
+/* ============ RENDER: ONEPAGE ============ */
+function renderOnePageDoc(data){
+  const op=data.onepage||{},P=data.period||{};
+  const u=op.users||{},m=op.messages||{},fl=op.flow||{},k=op.kpis||{},sat=op.satisfaction||{},dk=op.desk||{};
+  const N=v=>v==null?0:v;
+  const vstr=v=>v==null?"—":String(v).replace(".",",");
+  const pc=(a,b)=>N(b)?Math.round(N(a)/N(b)*100):0;
+  const dv=v=>{if(v==null)return "";const up=v>=0;return `<span class="dl ${up?'pos':'neg'}">${up?'▲':'▼'} ${vstr(Math.abs(v))}%</span>`;};
+  const days=(()=>{try{return Math.round((new Date(P.end)-new Date(P.start))/86400000)+1;}catch(e){return "";}})();
+  const satV=N(sat.validas), insat=satV?Math.round((N(sat.media)+N(sat.dificil))/satV*100):0;
+  const emAberto=N(dk.waiting)+N(dk.open);
+  const blocks=op.blocks||[];const topSum=blocks.reduce((a,b)=>a+N(b.count),0);
+
+  const CSS=`*{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Georgia,'Times New Roman',serif;background:#e7eef8;color:#0f2748;padding:44px 56px 64px;font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto}
+  .eyebrow{font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0a4fb4}
+  h1{font-size:40px;font-weight:700;letter-spacing:-.5px;line-height:1.05;margin:8px 0 6px}
+  .lede{color:#54658a;font-size:14px;font-style:italic;max-width:720px}
+  .rule{border:0;border-top:2px solid #0f2748;margin:18px 0 0}
+  .stats{display:flex;flex-wrap:wrap;margin:26px 0 6px}
+  .stat{flex:1;min-width:130px;padding:0 20px;border-left:1px solid #ccd8ec}
+  .stat:first-child{padding-left:0;border-left:0}
+  .stat .n{font-size:44px;font-weight:700;line-height:.95;letter-spacing:-1.5px}
+  .stat .l{font-family:Arial,Helvetica,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#54658a;margin-top:8px}
+  .stat .s{font-family:Arial,Helvetica,sans-serif;font-size:9.5px;color:#0a4fb4;margin-top:3px;font-weight:700}
+  .stat.neg .n{color:#b3261e}
+  .sech{display:flex;align-items:baseline;gap:14px;margin:42px 0 4px;padding-bottom:7px;border-bottom:1px solid #ccd8ec}
+  .sech .num{font-size:15px;color:#0a4fb4;font-weight:700}.sech .tit{font-size:21px;font-weight:700;letter-spacing:-.3px}
+  .secnote{color:#54658a;font-style:italic;font-size:12.5px;margin:10px 0 16px}
+  .grid2{display:flex;gap:46px;margin-top:18px}.grid2>div{flex:1}
+  .colh{font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0a4fb4;margin-bottom:8px}
+  .kv{display:flex;align-items:baseline;justify-content:space-between;padding:9px 0;border-bottom:1px solid #dbe5f5}
+  .kv .kk{font-size:14px}.kv .kk small{color:#54658a;font-style:italic;font-size:11px}
+  .kv .vv{font-size:22px;font-weight:700;letter-spacing:-.5px}
+  .dl{font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;margin-left:8px}.dl.pos{color:#0f766e}.dl.neg{color:#b3261e}
+  .tbl{width:100%;border-collapse:collapse;margin-top:8px}
+  .tbl th{font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#54658a;text-align:left;padding:8px 12px 8px 0;border-bottom:2px solid #0f2748}
+  .tbl th.r,.tbl td.r{text-align:right}
+  .tbl td{padding:9px 12px 9px 0;border-bottom:1px solid #ccd8ec;font-size:13.5px;vertical-align:top}
+  .tbl td.num{font-weight:700;font-size:17px;letter-spacing:-.5px;white-space:nowrap}
+  .tbl td .ds{display:block;font-size:11px;color:#54658a;font-style:italic;margin-top:1px}
+  .sat{margin-top:6px}
+  .satrow{display:flex;align-items:center;gap:14px;padding:7px 0}
+  .satrow .sl{width:130px;font-size:13px}.satrow .st{flex:1;height:4px;background:#d4ddef}.satrow .sf{height:100%}
+  .satrow .sv{width:90px;text-align:right;font-weight:700;font-size:15px}
+  .callout{margin-top:26px;border-top:2px solid #0f2748;border-bottom:1px solid #ccd8ec;padding:16px 0}
+  .callout .ttl{font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#b3261e;margin-bottom:6px}
+  .callout p{font-size:13.5px;line-height:1.65}.callout b{font-weight:700}
+  .foot{font-style:italic;color:#54658a;font-size:11.5px;margin-top:30px;padding-top:14px;border-top:2px solid #0f2748}`;
+
+  const satBar=(lab,val,col)=>`<div class="satrow"><div class="sl">${lab}</div><div class="st"><div class="sf" style="width:${pc(val,satV||1)}%;background:${col}"></div></div><div class="sv">${N(val)} <span style="font-family:Arial;font-size:10px;color:#54658a">${pc(val,satV)}%</span></div></div>`;
+  const agents=(dk.agents||[]).map(a=>`<tr><td>${esc(a.name)}</td><td class="num r">${N(a.n)}</td><td class="r">${a.transferred?'—':esc(a.fr)}</td><td class="r">${a.transferred?'<i style="color:#54658a">transferidos</i>':esc(a.at)}</td></tr>`).join("");
+
+  const body=`<div class="wrap">
+  <div class="eyebrow">Relatório Gerencial · Danone CAC</div>
+  <h1>Panorama de Atendimento</h1>
+  <div class="lede">Visão consolidada do chatbot no WhatsApp — volume, jornada, fluxo e atendimento humano. Período de ${fmtP(P.start)} a ${fmtP(P.end)} (${days} dias).</div>
+  <hr class="rule">
+
+  <div class="stats">
+    <div class="stat"><div class="n">${N(u.active)}</div><div class="l">Usuários ativos</div></div>
+    <div class="stat"><div class="n">${N(m.total)}</div><div class="l">Mensagens trocadas</div><div class="s">${dv(m.totalVar)?'':''}${vstr(m.totalVar)}% vs ant.</div></div>
+    <div class="stat"><div class="n">${vstr(u.recRate)}%</div><div class="l">Recorrência</div><div class="s">${N(u.recCount)} usuários</div></div>
+    <div class="stat"><div class="n">${N(dk.total)}</div><div class="l">Tickets humanos</div><div class="s">${N(dk.closed)} fechados</div></div>
+    <div class="stat neg"><div class="n">${N(k.finalizadosBot)}</div><div class="l">Resolvido pelo bot</div><div class="s" style="color:#b3261e">automação baixa</div></div>
+  </div>
+
+  <div class="sech"><span class="num">01</span><span class="tit">Usuários &amp; Mensagens</span></div>
+  <div class="grid2">
+    <div>
+      <div class="colh">Usuários &amp; Interações</div>
+      <div class="kv"><span class="kk">Ativos <small>identidades únicas</small></span><span class="vv">${N(u.active)}</span></div>
+      <div class="kv"><span class="kk">Engajados <small>responderam ao bot</small></span><span class="vv">${N(u.engaged)}</span></div>
+      <div class="kv"><span class="kk">Recorrência <small>voltaram a interagir</small></span><span class="vv">${vstr(u.recRate)}% ${dv(u.recVar)}</span></div>
+      <div class="kv"><span class="kk">Rejeição <small>receberam e não responderam</small></span><span class="vv">${vstr(u.rejection)}%</span></div>
+    </div>
+    <div>
+      <div class="colh">Volume de Mensagens</div>
+      <div class="kv"><span class="kk">Total no período</span><span class="vv">${N(m.total)} ${dv(m.totalVar)}</span></div>
+      <div class="kv"><span class="kk">Enviadas pelo bot <small>${vstr(m.sentPct)}%</small></span><span class="vv">${N(m.sent)} ${dv(m.sentVar)}</span></div>
+      <div class="kv"><span class="kk">Recebidas do usuário <small>${vstr(m.receivedPct)}%</small></span><span class="vv">${N(m.received)} ${dv(m.receivedVar)}</span></div>
+      <div class="kv"><span class="kk">Ativas WhatsApp <small>notificações proativas</small></span><span class="vv">${N(m.active)} ${dv(m.activeVar)}</span></div>
+    </div>
+  </div>
+
+  <div class="sech"><span class="num">02</span><span class="tit">Jornada do Usuário</span><span style="font-family:Arial;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#54658a">via event-track</span></div>
+  <table class="tbl"><thead><tr><th>Indicador</th><th class="r">Valor</th><th>Leitura</th></tr></thead><tbody>
+    <tr><td>Código de loja válido</td><td class="num r">${N(k.codValido)}</td><td><span class="ds">Avançaram corretamente na jornada.</span></td></tr>
+    <tr><td>Código de loja inválido</td><td class="num r">${N(k.codInvalido)}</td><td><span class="ds">Erro de digitação ou fora de escopo.</span></td></tr>
+    <tr><td>Lojas localizadas</td><td class="num r">${N(k.lojasLocalizadas)}</td><td><span class="ds">Encontradas na base.</span></td></tr>
+    <tr><td>Loja não encontrada por CNPJ</td><td class="num r">${N(k.lojaNFcnpj)}</td><td><span class="ds">Busca por CNPJ sem retorno — ponto de fricção.</span></td></tr>
+    <tr><td>Pedidos não encontrados</td><td class="num r">${N(k.pedidosNF)}</td><td><span class="ds">Consulta de pedido sem retorno.</span></td></tr>
+    <tr><td>Transbordo inicial / atendimento / fora de horário</td><td class="num r">${N(k.transbInicial)} / ${N(k.transbAtend)} / ${N(k.transbForaH)}</td><td><span class="ds">Pedidos de atendente humano por origem.</span></td></tr>
+    <tr><td>Inatividade</td><td class="num r">${N(k.inatividade)}</td><td><span class="ds">Abandonaram sem responder ao bot.</span></td></tr>
+  </tbody></table>
+
+  <div class="sech"><span class="num">03</span><span class="tit">Fluxo Conversacional &amp; Satisfação</span></div>
+  <div class="grid2">
+    <div>
+      <div class="colh">Fluxo (/flowmetrics)</div>
+      <div class="kv"><span class="kk">Retidos no bot</span><span class="vv">${N(fl.retention)} <span style="font-size:13px;color:#54658a">${vstr(fl.retentionPct)}%</span></span></div>
+      <div class="kv"><span class="kk">Em atendimento humano</span><span class="vv">${N(fl.attendance)} <span style="font-size:13px;color:#54658a">${vstr(fl.attendancePct)}%</span></span></div>
+      <div class="kv"><span class="kk">Passaram por exceção</span><span class="vv">${N(fl.exception)} <span style="font-size:13px;color:#b3261e">${vstr(fl.exceptionPct)}%</span></span></div>
+    </div>
+    <div>
+      <div class="colh">Pesquisa de satisfação · ${satV} válidas</div>
+      <div class="sat">
+        ${satBar("😊 Fácil",sat.facil,"#0f766e")}
+        ${satBar("😐 Média",sat.media,"#0a4fb4")}
+        ${satBar("😞 Difícil",sat.dificil,"#b3261e")}
+      </div>
+      <div class="secnote" style="margin:8px 0 0">Insatisfação (médio+difícil): <b style="font-style:normal">${insat}%</b> · sem resposta: ${N(sat.inatividade)}.</div>
+    </div>
+  </div>
+
+  <div class="sech"><span class="num">04</span><span class="tit">Atendimento Humano · Blip Desk</span></div>
+  ${dk.available?`
+  <div class="stats" style="margin:14px 0 4px">
+    <div class="stat"><div class="n" style="font-size:30px">${esc(dk.queueAvg)}</div><div class="l">Tempo médio de fila</div><div class="s" style="color:#b3261e">máx ${esc(dk.queueMax)}</div></div>
+    <div class="stat"><div class="n" style="font-size:30px">${esc(dk.frAvg)}</div><div class="l">1ª resposta</div><div class="s">máx ${esc(dk.frMax)}</div></div>
+    <div class="stat"><div class="n" style="font-size:30px">${esc(dk.attAvg)}</div><div class="l">Tempo de atendimento</div><div class="s">abertura → fim</div></div>
+    <div class="stat"><div class="n" style="font-size:30px">${N(dk.total)}</div><div class="l">Tickets</div><div class="s">${N(dk.closed)} fech · ${N(dk.transferred)} transf · ${emAberto} aberto</div></div>
+  </div>
+  <table class="tbl"><thead><tr><th>Atendente</th><th class="r">Tickets</th><th class="r">1ª resposta</th><th class="r">Atendimento</th></tr></thead><tbody>${agents}</tbody></table>`
+  :`<div class="secnote">Dados do Blip Desk indisponíveis (chave do bot de transbordo não configurada).</div>`}
+
+  <div class="sech"><span class="num">05</span><span class="tit">Top blocos de exceção</span></div>
+  <table class="tbl"><thead><tr><th>Bloco</th><th class="r">Quedas</th><th class="r">% do top</th></tr></thead><tbody>
+    ${blocks.map(b=>`<tr><td>${esc(b.name)}</td><td class="num r">${N(b.count)}</td><td class="r" style="color:#54658a">${pc(b.count,topSum)}%</td></tr>`).join("")}
+  </tbody></table>
+
+  <div class="callout">
+    <div class="ttl">Pontos de atenção</div>
+    <p>No período de ${days} dias, <b>${N(u.active)} usuários únicos</b> engajaram e <b>${vstr(fl.exceptionPct)}%</b> passaram por algum bloco de exceção. Fila média de <b>${esc(dk.queueAvg||'—')}</b> (máx ${esc(dk.queueMax||'—')}). Insatisfação de <b>${insat}%</b> nas ${satV} respostas válidas. Busca por CNPJ sem retorno em <b>${N(k.lojaNFcnpj)}</b> casos e apenas <b>${N(k.finalizadosBot)}</b> atendimento(s) resolvido(s) pelo bot — automação a expandir.</p>
+  </div>
+
+  <div class="foot">Fontes: API Blip — analytics.msging.net · desk.msging.net · event-track. Atualizado em ${esc(data.ts)}. Métricas de mensagens, usuários e fluxo são estáveis; KPIs de jornada (event-track) têm retenção limitada e podem subestimar o início do período.</div>
+  </div>`;
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><style>${CSS}</style></head><body>${body}</body></html>`;
+}
+
+/* ============ RENDER: DETALHAMENTO ============ */
+function detBadges(f){const b=[];if(f.valid)b.push('<span class="bg ok">código válido</span>');if(f.invalid)b.push('<span class="bg bad">código inválido</span>');if(f.store_ok)b.push('<span class="bg ok">loja localizada</span>');if(f.order_found)b.push('<span class="bg ok">pedido encontrado</span>');if(f.order_nf)b.push('<span class="bg bad">pedido não encontrado</span>');if(!f.any)b.push('<span class="bg lost">sem passo rastreável</span>');else if(f.finalized)b.push('<span class="bg fin">chegou à pesquisa</span>');else b.push('<span class="bg lost">sem pesquisa · possível abandono</span>');return b.join(" ");}
+function detNm(r){return (r.name&&r.name!=="{}")?esc(r.name):"(sem nome cadastrado)";}
+function detMeta(r){const m=[];if(r.codigoLoja)m.push("cód. loja "+esc(r.codigoLoja));if(r.cnpjLoja)m.push("CNPJ "+esc(r.cnpjLoja));if(r.tipo)m.push(esc(r.tipo));return m.join(" · ")||"—";}
+function detCard(r){const rows=r.events.map(e=>`<tr><td class="c1">${tf(e.t,e.prec)}</td><td class="c2">${esc(LABEL[e.cat]||e.cat)}</td><td class="c3">${esc(e.val)}</td></tr>`).join("");
+  const body=rows?`<table class="tl"><colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup><thead><tr><th class="c1">Quando (Brasília)</th><th class="c2">O que aconteceu</th><th class="c3">Detalhe</th></tr></thead><tbody>${rows}</tbody></table>`:"";
+  return `<div class="card"><div class="ch"><div><b>${detNm(r)}</b> <a class="ph" target="_blank" href="${blip(r.phone)}">+${esc(r.phone)} ↗ abrir no Blip</a><div class="sub">${detMeta(r)}${r.last?(" · últ. msg "+esc(r.last)):""}</div></div><div class="flags">${detBadges(r.flags)}</div></div><div class="narr">📝 ${esc(r.narr)}</div>${body}</div>`;}
+function detQt(group,withlast){if(!group.length)return "<div class='note'>Nenhum contato neste grupo.</div>";
+  const rows=group.map(r=>`<tr><td><a target="_blank" href="${blip(r.phone)}">+${esc(r.phone)} ↗</a></td><td>${detNm(r)}</td><td>${esc(r.codigoLoja||r.cnpjLoja||"—")}</td><td>${esc(r.tipo||"—")}</td><td class="t">${withlast?esc(r.last):tf(r.first,true)}</td></tr>`).join("");
+  return `<table class="qt"><thead><tr><th>Abrir no Blip</th><th>Nome</th><th>Loja</th><th>Tipo</th><th>${withlast?"Últ. mensagem":"1º contato"}</th></tr></thead><tbody>${rows}</tbody></table>`;}
+function detSec(t,c,e,ct,o){return `<details class="sec"${o?" open":""}><summary>${esc(t)} <span class="cnt">(${c})</span></summary><div class="exp">${e}</div>${ct}</details>`;}
+function renderDetDoc(data){
+  const recs=data.recs||[],P=data.period||{};
+  const we=recs.filter(r=>r.flags.any).sort((a,b)=>(a.first||"").localeCompare(b.first||""));
+  const ne=recs.filter(r=>!r.flags.any).sort((a,b)=>(b.last||"").localeCompare(a.last||""));
+  const gs=we.filter(r=>r.flags.store_ok&&!r.flags.finalized),gof=we.filter(r=>r.flags.order_found&&!r.flags.finalized),gon=we.filter(r=>r.flags.order_nf),gi=we.filter(r=>r.flags.invalid),gf=we.filter(r=>r.flags.finalized);
+  const nstore=we.filter(r=>r.flags.store_ok).length,nsonf=we.filter(r=>r.flags.store_ok&&r.flags.order_nf).length;
+  const active=(data.onepage&&data.onepage.users&&data.onepage.users.active)||(we.length+ne.length);
+
+  const CSS=`*{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Georgia,'Times New Roman',serif;background:#e7eef8;color:#0f2748;padding:44px 56px 64px;font-size:13px;line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto}
+  .eyebrow{font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0a4fb4}
+  h1{font-size:40px;font-weight:700;letter-spacing:-.5px;line-height:1.05;margin:8px 0 6px}
+  .lede{color:#54658a;font-size:14px;font-style:italic;max-width:720px}
+  .rule{border:0;border-top:2px solid #0f2748;margin:18px 0 0}
+  .stats{display:flex;flex-wrap:wrap;margin:26px 0 6px}
+  .stat{flex:1;min-width:120px;padding:0 18px;border-left:1px solid #ccd8ec}.stat:first-child{padding-left:0;border-left:0}
+  .stat .n{font-size:40px;font-weight:700;line-height:.95;letter-spacing:-1.5px}.stat.neg .n{color:#b3261e}
+  .stat .l{font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#54658a;margin-top:8px}
+  .recon{font-style:italic;color:#54658a;font-size:12.5px;margin:22px 0 0;padding-left:16px;border-left:2px solid #0a4fb4}
+  .recon b{font-style:normal;color:#0f2748}
+  .callout{margin-top:22px;border-top:2px solid #0f2748;border-bottom:1px solid #ccd8ec;padding:15px 0}
+  .callout .t{font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#b3261e;margin-bottom:5px}
+  .callout p{font-size:13.5px}.callout b{font-weight:700}
+  details.sec{margin-top:30px;border-top:1px solid #ccd8ec}
+  details.sec>summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:12px;padding:14px 0 8px}
+  details.sec>summary::-webkit-details-marker{display:none}
+  details.sec>summary:before{content:'+';font-family:Arial;color:#0a4fb4;font-weight:700;font-size:16px}
+  details.sec[open]>summary:before{content:'–'}
+  details.sec>summary .tit{font-size:19px;font-weight:700;letter-spacing:-.3px}
+  details.sec>summary .cnt{font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;color:#0a4fb4}
+  .exp{color:#54658a;font-style:italic;font-size:12px;margin:0 0 12px}
+  .tbl{width:100%;border-collapse:collapse;margin-bottom:8px}
+  .tbl th{font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#54658a;text-align:left;padding:8px 12px 8px 0;border-bottom:2px solid #0f2748}
+  .tbl td{padding:8px 12px 8px 0;border-bottom:1px solid #ccd8ec;font-size:13px;vertical-align:top}
+  a{color:#0a4fb4;text-decoration:none;font-weight:700}a:hover{text-decoration:underline}
+  .ct{padding:16px 0;border-bottom:1px solid #ccd8ec}
+  .ct .h{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .ct .nm{font-size:16px;font-weight:700}.ct .nm a{font-size:12px;font-weight:700;margin-left:8px}
+  .ct .meta{font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.3px;text-transform:uppercase;color:#54658a;margin-top:2px}
+  .tags{text-align:right}
+  .tag{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 0;margin-left:14px}
+  .tag.ok{color:#0f766e}.tag.bad{color:#b3261e}.tag.fin{color:#0a4fb4}.tag.mut{color:#54658a}
+  .narr{font-style:italic;color:#33425e;font-size:12.5px;margin:9px 0 8px}
+  .tl{width:100%;border-collapse:collapse;table-layout:fixed}
+  .tl col.c1{width:130px}.tl col.c2{width:250px}
+  .tl th{font-family:Arial,Helvetica,sans-serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#54658a;text-align:left;padding:5px 10px 5px 0;border-bottom:1px solid #ccd8ec}
+  .tl td{padding:5px 10px 5px 0;border-bottom:1px solid #dbe5f5;font-size:11.5px;vertical-align:top;word-break:break-word}
+  .tl td.c1{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#54658a;white-space:nowrap}
+  .note{font-style:italic;color:#54658a;font-size:11.5px}
+  .foot{font-style:italic;color:#54658a;font-size:11.5px;margin-top:30px;padding-top:14px;border-top:2px solid #0f2748}.foot code{font-family:Arial;font-style:normal;font-size:10px;background:#dbe5f5;padding:1px 5px}`;
+
+  const nm=r=>(r.name&&r.name!=="{}")?esc(r.name):"(sem nome cadastrado)";
+  const meta=r=>{const m=[];if(r.codigoLoja)m.push("cód. loja "+esc(r.codigoLoja));if(r.cnpjLoja)m.push("CNPJ "+esc(r.cnpjLoja));if(r.tipo)m.push(esc(r.tipo));return m.join(" · ")||"—";};
+  const badges=f=>{const b=[];if(f.valid)b.push('<span class="tag ok">código válido</span>');if(f.invalid)b.push('<span class="tag bad">código inválido</span>');if(f.store_ok)b.push('<span class="tag ok">loja localizada</span>');if(f.order_found)b.push('<span class="tag ok">pedido encontrado</span>');if(f.order_nf)b.push('<span class="tag bad">pedido não encontrado</span>');if(!f.any)b.push('<span class="tag mut">sem passo rastreável</span>');else if(f.finalized)b.push('<span class="tag fin">chegou à pesquisa</span>');else b.push('<span class="tag mut">sem pesquisa</span>');return b.join("");};
+  const card=r=>{const rows=r.events.map(e=>`<tr><td class="c1">${tf(e.t,e.prec)}</td><td>${esc(LABEL[e.cat]||e.cat)}</td><td>${esc(e.val)}</td></tr>`).join("");
+    const body=rows?`<table class="tl"><colgroup><col class="c1"><col class="c2"><col></colgroup><thead><tr><th>Quando (Brasília)</th><th>O que aconteceu</th><th>Detalhe</th></tr></thead><tbody>${rows}</tbody></table>`:"";
+    return `<div class="ct"><div class="h"><div><div class="nm">${nm(r)} <a target="_blank" href="${blip(r.phone)}">+${esc(r.phone)} ↗</a></div><div class="meta">${meta(r)}${r.last?(" · últ. msg "+esc(r.last)):""}</div></div><div class="tags">${badges(r.flags)}</div></div><div class="narr">${esc(r.narr)}</div>${body}</div>`;};
+  const qt=(g,withlast)=>{if(!g.length)return "<div class='note'>Nenhum contato neste grupo.</div>";
+    const rows=g.map(r=>`<tr><td><a target="_blank" href="${blip(r.phone)}">+${esc(r.phone)} ↗</a></td><td>${nm(r)}</td><td>${esc(r.codigoLoja||r.cnpjLoja||"—")}</td><td>${esc(r.tipo||"—")}</td><td>${withlast?esc(r.last):tf(r.first,true)}</td></tr>`).join("");
+    return `<table class="tbl"><thead><tr><th>Abrir no Blip</th><th>Nome</th><th>Loja</th><th>Tipo</th><th>${withlast?"Últ. mensagem":"1º contato"}</th></tr></thead><tbody>${rows}</tbody></table>`;};
+  const sec=(t,c,e,ct,open_)=>`<details class="sec"${open_?" open":""}><summary><span class="tit">${esc(t)}</span><span class="cnt">${c} contatos</span></summary><div class="exp">${e}</div>${ct}</details>`;
+
+  const body=`<div class="wrap">
+  <div class="eyebrow">Relatório Gerencial · Danone CAC</div>
+  <h1>Detalhamento de Contatos</h1>
+  <div class="lede">Jornada reconstruída contato a contato — quando informou o código, se a loja e o pedido foram localizados, e onde a conversa parou. Período de ${fmtP(P.start)} a ${fmtP(P.end)}.</div>
+  <hr class="rule">
+
+  <div class="stats">
+    <div class="stat"><div class="n">${active}</div><div class="l">Ativos</div></div>
+    <div class="stat"><div class="n">${we.length}</div><div class="l">Com jornada</div></div>
+    <div class="stat"><div class="n">${ne.length}</div><div class="l">Sem passo rastreável</div></div>
+    <div class="stat neg"><div class="n">${gon.length}</div><div class="l">Pedido não encontrado</div></div>
+    <div class="stat neg"><div class="n">${gi.length}</div><div class="l">Código inválido</div></div>
+    <div class="stat"><div class="n">${gf.length}</div><div class="l">Chegaram à pesquisa</div></div>
+  </div>
+
+  <div class="recon">Por que <b>${active}</b> e não <b>${we.length}</b>? O total de ativos conta todos que trocaram ≥1 mensagem. Destes, <b>${we.length}</b> têm jornada rastreável (eventos que gravam o telefone); os <b>${ne.length}</b> restantes só tiveram saudação e/ou atendimento humano — listados em "Ativos sem passo rastreável".</div>
+
+  <div class="callout"><div class="t">Principal achado</div><p>O abandono não está na loja, está no <b>pedido</b>. <b>${nstore}</b> contatos localizaram a loja, mas <b>${nsonf}</b> consultaram o pedido e a base retornou vazio, e só <b>${gf.length}</b> chegaram à pesquisa. Padrão: localiza a loja → consulta o pedido → não encontra → some. Recomenda-se investigar a integração de pedidos (base/SAP).</p></div>
+
+  ${sec("Localizaram a loja e não chegaram à pesquisa",gs.length,"Validaram a loja mas o último passo não foi a pesquisa — candidatos a \"deu certo e sumiu\".",qt(gs,false),true)}
+  ${sec("Pedido encontrado, mas sem pesquisa",gof.length,"A API retornou os detalhes do pedido, porém sem registro de pesquisa.",qt(gof,false),true)}
+  ${sec("Consultaram o pedido e NÃO foi encontrado",gon.length,"Provável principal causa de frustração: chegaram à consulta e a base não retornou nada.",qt(gon,false),true)}
+  ${sec("Código inválido — o que digitaram",gi.length,"Confirma o contexto fora de escopo e os códigos errados. O texto exato aparece na jornada completa.",qt(gi,false),true)}
+  ${sec("Ativos sem passo rastreável",ne.length,"Contam nos ativos, mas sem evento de jornada — saudação e/ou atendimento humano. Ordenados pela última mensagem.",qt(ne,true),false)}
+  ${sec("Jornada completa — contatos rastreáveis",we.length,"Resumo em linguagem simples e linha do tempo de cada passo, em horário de Brasília.",we.map(card).join(""),false)}
+
+  <div class="foot">Fonte: API Blip (event-track + diretório de contatos). Horários convertidos de Londres/UTC para Brasília (UTC−3); "~10h" indica que só a hora cheia foi registrada. Clique no telefone para abrir o contato no painel do Blip. Atualizado em ${esc(data.ts)}.</div>
+  </div>`;
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><style>${CSS}</style></head><body>${body}</body></html>`;
+}
+
+/* ============ RENDER: FUNIL & CENÁRIOS ============ */
+function renderFunilDoc(data){
+  const f=data.funnel||{},P=data.period||{},recs=data.recs||[],op=data.onepage||{};
+  const N=v=>v==null?0:v;
+  const ratingRe=/(f[áa]cil|m[ée]dia|dif[íi]cil)/i;
+  const respondeuFn=r=>(r.events||[]).some(e=>e.cat==="pesquisa relatorio"&&ratingRe.test(e.val||""));
+  const achouFn=r=>!!(r.flags&&r.flags.order_found);
+  const uAtivos=N(op.users&&op.users.active)||recs.length;
+  const uLoja=recs.filter(r=>r.flags&&r.flags.store_ok).length;
+  const uConsultou=recs.filter(r=>r.flags&&r.flags.order_any).length;
+  const uPedido=recs.filter(achouFn).length;
+  const uResp=recs.filter(respondeuFn).length;
+  const nAchouResp=recs.filter(r=>achouFn(r)&&respondeuFn(r)).length;
+  const nAchouSemResp=uPedido-nAchouResp;
+  const csatValidas=N(f.csat_facil)+N(f.csat_media)+N(f.csat_dificil);
+  const transbordoTot=N(f.transbordados)||(N(f.transb_inicial)+N(f.transb_atend)+N(f.transb_fora));
+  const pc=(a,b)=>N(b)?Math.round(N(a)/N(b)*100):0;
+  const insat=csatValidas?Math.round((N(f.csat_media)+N(f.csat_dificil))/csatValidas*100):0;
+
+  const CSS=`*{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Georgia,'Times New Roman',serif;background:#e7eef8;color:#0f2748;padding:44px 56px 64px;font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto}
+  .eyebrow{font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0a4fb4}
+  h1{font-size:40px;font-weight:700;letter-spacing:-.5px;line-height:1.05;margin:8px 0 6px}
+  .lede{color:#54658a;font-size:14px;font-style:italic;max-width:680px}
+  .rule{border:0;border-top:2px solid #0f2748;margin:18px 0 0}
+  .hair{border:0;border-top:1px solid #ccd8ec}
+  .stats{display:flex;margin:26px 0 6px}
+  .stat{flex:1;padding:0 20px;border-left:1px solid #ccd8ec}
+  .stat:first-child{padding-left:0;border-left:0}
+  .stat .n{font-size:48px;font-weight:700;line-height:.95;letter-spacing:-1.5px}
+  .stat .l{font-family:Arial,Helvetica,sans-serif;font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#54658a;margin-top:8px}
+  .stat .s{font-family:Arial,Helvetica,sans-serif;font-size:9.5px;color:#0a4fb4;margin-top:3px;font-weight:700}
+  .stat.neg .n{color:#b3261e}
+  .sech{display:flex;align-items:baseline;gap:14px;margin:42px 0 4px;padding-bottom:7px;border-bottom:1px solid #ccd8ec}
+  .sech .num{font-size:15px;color:#0a4fb4;font-weight:700}
+  .sech .tit{font-size:21px;font-weight:700;letter-spacing:-.3px}
+  .secnote{color:#54658a;font-style:italic;font-size:12.5px;margin:10px 0 16px}
+  /* funil */
+  .fn{margin-top:18px}
+  .fnstage{margin:0 0 2px}
+  .fnhead{display:flex;justify-content:space-between;align-items:baseline}
+  .fnname{font-size:17px;font-weight:700}
+  .fnnum{font-size:30px;font-weight:700;letter-spacing:-1px}.fnnum i{font-size:13px;font-style:normal;color:#0a4fb4;font-weight:700}
+  .fnsub{font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:.3px;text-transform:uppercase;color:#54658a;margin-top:-1px}
+  .fnbar{height:5px;background:#d4ddef;margin-top:9px}.fnbar span{display:block;height:100%;background:#0f2748}
+  .fndrop{font-style:italic;color:#54658a;font-size:12.5px;padding:10px 0 18px;border-left:1px solid #ccd8ec;margin:6px 0 6px 2px;padding-left:14px}
+  .fndrop b{font-style:normal;color:#b3261e}
+  /* split perfil */
+  .split{display:flex;margin-top:18px}
+  .half{flex:1;padding:0 28px;border-left:1px solid #ccd8ec}.half:first-child{padding-left:0;border-left:0}
+  .half .k{font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#0f2748}
+  .half .big{font-size:54px;font-weight:700;line-height:1;letter-spacing:-2px;margin:6px 0 2px}
+  .half .pct{color:#0a4fb4;font-size:13px;font-weight:700}
+  .half .mini{color:#54658a;font-style:italic;font-size:12px;margin-top:8px}
+  /* jornadas */
+  .jor{display:flex;gap:40px;margin-top:20px}
+  .jcol{flex:1}
+  .jcol h3{font-size:14px;font-weight:700;margin-bottom:12px}
+  .jline{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-bottom:1px solid #dde6f4}
+  .jline .nm{font-size:13px}.jline .nm small{font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:.3px;text-transform:uppercase;color:#0a4fb4}
+  .jline .dots{flex:1;border-bottom:1px dotted #a9bcdb;transform:translateY(-4px)}
+  .jline .v{font-size:19px;font-weight:700;letter-spacing:-.5px}
+  .jline.good .v{color:#0f766e}.jline.bad .v{color:#b3261e}
+  /* fricoes */
+  .fr{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid #ccd8ec}
+  .fr:last-child{border-bottom:0}
+  .frn{font-size:34px;font-weight:700;color:#bdcde7;line-height:1;min-width:46px}
+  .frtag{font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#b3261e}
+  .frtag.med{color:#0a4fb4}
+  .frttl{font-size:18px;font-weight:700;margin:3px 0 4px;letter-spacing:-.2px}
+  .frnum{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#0f2748}
+  .frimp{color:#54658a;font-style:italic;margin:5px 0}
+  .fract{font-weight:700}.fract:before{content:"→ ";color:#0a4fb4}
+  /* cenarios */
+  .scen{display:flex;flex-wrap:wrap;margin-top:18px}
+  .sc{width:50%;padding:18px 26px 18px 0;border-bottom:1px solid #ccd8ec}
+  .sc:nth-child(odd){border-right:1px solid #ccd8ec;padding-right:30px}
+  .sc:nth-child(even){padding-left:30px}
+  .sc .lbl{font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0a4fb4;float:right}
+  .sc h3{font-size:16px;font-weight:700;margin-bottom:4px}
+  .sc .d{color:#54658a;font-style:italic;font-size:12px;min-height:34px}
+  .sc .v{font-size:30px;font-weight:700;letter-spacing:-1px;margin:6px 0 4px}
+  .sc .nt{font-family:Arial,Helvetica,sans-serif;font-size:9.5px;color:#54658a;line-height:1.5}
+  .foot{font-style:italic;color:#54658a;font-size:11.5px;margin-top:30px;padding-top:14px;border-top:2px solid #0f2748}
+  .foot code{font-family:Arial,Helvetica,sans-serif;font-style:normal;font-size:10px;background:#dbe5f5;padding:1px 5px}`;
+
+  const stages=[
+    {nm:"Usuários ativos",d:"trocaram ≥1 mensagem no período",v:uAtivos},
+    {nm:"Localizaram a loja",d:"validaram código ou CNPJ com sucesso",v:uLoja},
+    {nm:"Consultaram o pedido",d:"fizeram ao menos uma consulta de pedido",v:uConsultou}
+  ];
+  let fn="";
+  stages.forEach((s,i)=>{
+    fn+=`<div class="fnstage"><div class="fnhead"><span class="fnname">${esc(s.nm)}</span><span class="fnnum">${N(s.v)}<i> · ${pc(s.v,uAtivos)}%</i></span></div><div class="fnsub">${esc(s.d)}</div><div class="fnbar"><span style="width:${Math.max(3,pc(s.v,uAtivos))}%"></span></div></div>`;
+    if(i<stages.length-1){const keep=pc(stages[i+1].v,s.v);fn+=`<div class="fndrop">seguem ${keep}% &nbsp;·&nbsp; <b>saem ${100-keep}%</b> (${N(s.v)-N(stages[i+1].v)} usuários)</div>`;}
+  });
+
+  const jline=(nm,sub,val,cls)=>`<div class="jline ${cls||''}"><span class="nm">${esc(nm)}${sub?` <small>${esc(sub)}</small>`:''}</span><span class="dots"></span><span class="v">${N(val)}</span></div>`;
+
+  const fr=[];
+  if(N(f.cnpj_nf)>0&&N(f.cnpj_ok)===0) fr.push({tag:"Crítico",ttl:"A busca por CNPJ não localiza a loja",num:`${N(f.cli_cnpj_input)} CNPJ digitados · ${N(f.cnpj_ok)} encontrados · ${N(f.cnpj_nf)} não encontrados`,imp:"Clientes que optam por CNPJ praticamente não conseguem avançar na jornada.",act:"Revisar a base e a integração de CNPJ (formato, dígitos, fonte de dados)."});
+  if(transbordoTot>0&&N(f.finalizados_bot)<=transbordoTot*0.2) fr.push({tag:"Crítico",ttl:"Automação baixa — quase tudo vira atendimento humano",num:`${N(f.finalizados_bot)} resolvido(s) pelo bot · ${transbordoTot} transbordados`,imp:"Alto custo de operação humana; o bot agrega pouco no autoatendimento.",act:"Ampliar o autoatendimento de pedidos e reduzir o transbordo inicial."});
+  if(op.flow&&N(op.flow.exceptionPct)>=70) fr.push({med:1,tag:"Atenção",ttl:"A maioria passa por algum bloco de exceção",num:`${op.flow.exceptionPct}% dos usuários caíram em exceção`,imp:"Indica fricção e ambiguidade nos fluxos de entrada e validação.",act:"Revisar os blocos de exceção mais acionados (ver OnePage)."});
+  if(csatValidas+N(f.csat_inatividade)>0) fr.push({med:1,tag:"Atenção",ttl:"Insatisfação e não-resposta na pesquisa",num:`${insat}% avaliaram como médio ou difícil · ${N(f.csat_inatividade)} não responderam de ${csatValidas+N(f.csat_inatividade)}`,imp:"Parte relevante percebe a experiência como difícil.",act:"Investigar os pontos de fricção citados nas conversas (aba Detalhamento)."});
+
+  const body=`<div class="wrap">
+  <div class="eyebrow">Relatório Gerencial · Danone CAC</div>
+  <h1>Funil de Atendimento</h1>
+  <div class="lede">Da entrada à pesquisa de satisfação — onde os usuários avançam, onde param, e o que está custando conversão. Período de ${fmtP(P.start)} a ${fmtP(P.end)}.</div>
+  <hr class="rule">
+
+  <div class="stats">
+    <div class="stat"><div class="n">${uAtivos}</div><div class="l">Usuários ativos</div></div>
+    <div class="stat"><div class="n">${uLoja}</div><div class="l">Localizaram loja</div><div class="s">${pc(uLoja,uAtivos)}% dos ativos</div></div>
+    <div class="stat"><div class="n">${uConsultou}</div><div class="l">Consultaram pedido</div><div class="s">${pc(uConsultou,uAtivos)}% dos ativos</div></div>
+    <div class="stat"><div class="n">${uResp}</div><div class="l">Responderam pesquisa</div><div class="s">${pc(uResp,uAtivos)}% dos ativos</div></div>
+    <div class="stat neg"><div class="n">${N(f.finalizados_bot)}</div><div class="l">Resolvido pelo bot</div><div class="s" style="color:#b3261e">automação ${pc(f.finalizados_bot,transbordoTot+N(f.finalizados_bot))}%</div></div>
+  </div>
+
+  <div class="sech"><span class="num">01</span><span class="tit">Funil de usuários únicos</span></div>
+  <div class="secnote">Contatos distintos que avançaram em cada etapa rastreável por telefone. A conversão entre passos é real (etapas aninhadas).</div>
+  <div class="fn">${fn}</div>
+
+  <div class="sech"><span class="num">02</span><span class="tit">Como os usuários se dividem</span></div>
+  <div class="secnote">Escolha no menu inicial "Quem é você?". Contagem de seleções (ocorrências, sem telefone associado).</div>
+  <div class="split">
+    <div class="half"><div class="k">Cliente / Consumidor</div><div class="big">${N(f.perfil_cliente)}</div><div class="pct">${pc(f.perfil_cliente,f.perfil_sel)}% das seleções</div><div class="mini">Buscam a loja por CNPJ ou código para consultar pedidos.</div></div>
+    <div class="half"><div class="k">Funcionário Danone</div><div class="big">${N(f.perfil_danoner)}</div><div class="pct">${pc(f.perfil_danoner,f.perfil_sel)}% das seleções</div><div class="mini">Informam o código Danoner da loja diretamente.</div></div>
+  </div>
+  <div class="secnote" style="margin-top:14px">Sem resposta: ${N(f.perfil_inativ)} · fora das opções: ${N(f.perfil_inesp)} · total de seleções: ${N(f.perfil_sel)}.</div>
+
+  <div class="sech"><span class="num">03</span><span class="tit">As duas jornadas de identificação</span></div>
+  <div class="secnote">Passos por ocorrência (um usuário pode repetir). Mostra onde cada caminho perde força.</div>
+  <div class="jor">
+    <div class="jcol"><h3>Jornada Danoner — funcionário</h3>
+      ${jline("Código de loja digitado","",f.danoner_input)}
+      ${jline("Loja validada",`${pc(f.danoner_ok,f.danoner_input)}% dos códigos`,f.danoner_ok,"good")}
+      ${jline("Loja não encontrada","",f.danoner_nf,"bad")}
+    </div>
+    <div class="jcol"><h3>Jornada Cliente</h3>
+      ${jline("Escolheu como buscar","",f.cliente_sel)}
+      ${jline("Optou por CNPJ","",f.cliente_cnpj)}
+      ${jline("Optou por código","",f.cliente_codigo)}
+      ${jline("CNPJ digitado",`${N(f.cli_cnpj_err)} inválidos`,f.cli_cnpj_input)}
+      ${jline("Loja achada por CNPJ","",f.cnpj_ok,"good")}
+      ${jline("Loja NÃO achada por CNPJ","",f.cnpj_nf,"bad")}
+    </div>
+  </div>
+
+  <div class="sech"><span class="num">04</span><span class="tit">Pontos de fricção</span></div>
+  <div class="secnote">Priorizados por severidade — problema, impacto e ação recomendada.</div>
+  ${fr.map((x,i)=>`<div class="fr"><div class="frn">${String(i+1).padStart(2,"0")}</div><div class="frbody"><div class="frtag ${x.med?'med':''}">${x.tag}</div><div class="frttl">${x.ttl}</div><div class="frnum">${x.num}</div><div class="frimp">${x.imp}</div><div class="fract">${x.act}</div></div></div>`).join("")}
+
+  <div class="sech"><span class="num">05</span><span class="tit">Cenários da jornada</span></div>
+  <div class="scen">
+    <div class="sc"><span class="lbl">Agregado</span><h3>A · Completa com sucesso</h3><div class="d">Foi ao atendente humano e respondeu à pesquisa.</div><div class="v">—</div><div class="nt">Transbordo não grava telefone, não é isolável por usuário. Agregado: ${transbordoTot} transbordados · ${csatValidas} respostas CSAT.</div></div>
+    <div class="sc"><span class="lbl">Agregado</span><h3>B · Abandono no transbordo</h3><div class="d">Foi ao atendente humano, mas não respondeu à pesquisa.</div><div class="v">—</div><div class="nt">Como A: requer cruzamento com o Blip Desk para atribuição por usuário.</div></div>
+    <div class="sc"><span class="lbl">Por contato</span><h3>C · Autoatendimento com sucesso</h3><div class="d">Achou o pedido, sem transbordo, e respondeu à pesquisa.</div><div class="v">≈ ${nAchouResp}</div><div class="nt">Acharam pedido e responderam (sinais com telefone). Falta excluir transbordo — valor é teto.</div></div>
+    <div class="sc"><span class="lbl">Por contato</span><h3>D · Autoatendimento sem pesquisa</h3><div class="d">Achou o pedido, sem transbordo, mas não respondeu.</div><div class="v">≈ ${nAchouSemResp}</div><div class="nt">${uPedido} acharam pedido, ${nAchouResp} responderam, logo ${nAchouSemResp} sem pesquisa.</div></div>
+  </div>
+
+  <div class="foot">Notas de dados — o funil de usuários usa <b>contatos únicos</b> (sinais com telefone: código, loja, pedido e <code>pesquisa relatorio</code>). Perfil, transbordo e <code>status pedidos</code> só existem em ocorrências (sem telefone), por isso aparecem em blocos próprios. Para fechar os cenários A e B por usuário: incluir o telefone nos trackings de transbordo, ou cruzar os tickets do Blip Desk. Contagens respeitam o período do cabeçalho.</div>
+  </div>`;
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><style>${CSS}</style></head><body>${body}</body></html>`;
+}
+
+/* ============ COLETA AO VIVO ============ */
+async function cmd(uri,to,key){const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Key "+key},body:JSON.stringify({id:String(Math.random()),method:"get",uri,to})});if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}
+const ISO_FULL=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,DATE_ONLY=/^\d{4}-\d{2}-\d{2}$/;
+function parseAction(a){const parts=String(a||"").split("|").map(s=>s.trim());let phone=null,date_s=null,full=null,hour=null;const vals=[];
+  for(const p of parts){if(phone===null){const d=p.split("@")[0].trim();if(/^\d+$/.test(d)&&(d.length===12||d.length===13)&&d.startsWith("55")){phone=d;continue;}}
+    if(full===null&&ISO_FULL.test(p)){full=p;continue;}if(date_s===null&&DATE_ONLY.test(p)){date_s=p;continue;}
+    if(hour===null&&/^\d{1,2}$/.test(p)&&+p>=0&&+p<=23){hour=+p;continue;}if(p&&p.toLowerCase()!=="exibicao")vals.push(p);}
+  let dt=null;if(full){let s=full;if(!/[zZ]|[+-]\d{2}:\d{2}$/.test(s))s+="Z";dt=new Date(s.replace(/[zZ]$/,"+00:00"));}else if(date_s){const a2=date_s.split("-").map(Number);dt=new Date(Date.UTC(a2[0],a2[1]-1,a2[2],hour||0));}
+  return {dt:(dt&&!isNaN(dt))?dt:null,phone,val:vals.join(" | "),prec:full!==null};}
+function cleanVal(v){if(!v)return "";const pats=[[/codLoja=0*(\d+)/,"loja "],[/codigoCliente=0*(\d+)/,"cliente "],[/pedidoCliente=([A-Za-z0-9\-]+)/,"pedido "],[/cpfCnpj=0*(\d+)/,"CNPJ "]];
+  for(const pl of pats){const m=v.match(pl[0]);if(m)return pl[1]+m[1];}v=v.replace(/\|\s*none\s*\|\s*200\s*\|.*$/,"").replace(/\{[^}]*\}/,"").replace(/^\d{1,2}\s*\|\s*/,"").replace(/^\||\|$/g,"").trim();return v.slice(0,90);}
+function brIso(d){if(!d)return "";const b=new Date(d.getTime()-3*3600000);const p=n=>String(n).padStart(2,"0");return `${b.getUTCFullYear()}-${p(b.getUTCMonth()+1)}-${p(b.getUTCDate())}T${p(b.getUTCHours())}:${p(b.getUTCMinutes())}:${p(b.getUTCSeconds())}-03:00`;}
+function inset(set,arr){return arr.some(x=>set.has(x));}
+function dparse(s){if(!s)return null;const d=new Date(String(s).replace(/[zZ]$/,"+00:00"));return isNaN(d)?null:d;}
+function pct(x){return x==null?null:Math.round(x*1000)/10;}
+function fmtDur(sec){if(sec==null)return "—";sec=Math.round(sec);const p=n=>String(n).padStart(2,"0");const d=Math.floor(sec/86400);let r=sec-d*86400;const h=Math.floor(r/3600);r-=h*3600;const m=Math.floor(r/60);const s=r-m*60;return d?`${d}d ${p(h)}:${p(m)}:${p(s)}`:`${p(h)}:${p(m)}:${p(s)}`;}
+function avg(x){return x.length?x.reduce((a,b)=>a+b,0)/x.length:null;}
+function mx(x){return x.length?Math.max(...x):null;}
+
+async function collectAll(start,end,prog){
+  const RK=ROUTER_KEY,TK=TRANSBORDO_KEY;
+  if(prog)prog(2,100,"métricas");
+  const [msg,actR,engR,recR,flowR,blkR]=await Promise.all([
+    cmd(`/metrics/messages?startDate=${start}&endDate=${end}`,ANALYTICS,RK).then(r=>r.resource||{}),
+    cmd(`/metrics/active-identity-quantity?startDate=${start}&endDate=${end}`,ANALYTICS,RK).then(r=>(r.resource||{}).count),
+    cmd(`/metrics/engaged-identity-quantity?startDate=${start}&endDate=${end}`,ANALYTICS,RK).then(r=>(r.resource||{}).count),
+    cmd(`/metrics/recurrence?startDate=${start}&endDate=${end}`,ANALYTICS,RK).then(r=>r.resource||{}),
+    cmd(`/flowmetrics?startDate=${start}&endDate=${end}`,ANALYTICS,RK).then(r=>r.resource||{}),
+    cmd(`/blocks/fallback?startDate=${start}&endDate=${end}`,ANALYTICS,RK).then(r=>(r.resource||{}).items||[])]);
+  // contatos
+  const allc={};for(let skip=0;skip<1000;skip+=100){const r=await cmd(`/contacts?$take=100&$skip=${skip}`,CRM,RK);const items=(r.resource&&r.resource.items)||[];if(!items.length)break;for(const c of items)allc[String(c.identity||"").split("@")[0]]=c;}
+  const P0=new Date(start+"T00:00:00Z"),P1=new Date(end+"T23:59:59Z");
+  const active={};for(const ph in allc){const lm=allc[ph].lastMessageDate?new Date(allc[ph].lastMessageDate):null;if(lm&&lm>=P0&&lm<=P1)active[ph]=allc[ph];}
+  // event-track
+  const cr=await cmd("/event-track?$take=500",ANALYTICS,RK);const cats=((cr.resource&&cr.resource.items)||[]).map(i=>i.category);
+  const journeys={},catCount={},csat={facil:0,media:0,dificil:0,inatividade:0};const perfilB={cliente:0,danoner:0,inativ:0,inesp:0},clienteB={cnpj:0,codigo:0,inativ:0,inesp:0};let done=0;const queue=cats.slice();
+  async function worker(){while(queue.length){const c=queue.shift();try{const r=await cmd(`/event-track/${encodeURIComponent(c)}?startDate=${start}&endDate=${end}&$take=5000`,ANALYTICS,RK);const items=(r.resource&&r.resource.items)||[];catCount[c]=items.length;
+    for(const it of items){const pa=parseAction(it.action);if(pa.phone){(journeys[pa.phone]=journeys[pa.phone]||[]).push({dt:pa.dt,cat:c,val:cleanVal(pa.val),raw:pa.val,prec:pa.prec});}}
+    if(c==="pesquisa csat selecao"){for(const it of items){const tail=String(it.action||"").split("|").pop().trim().toLowerCase();if(tail[0]==="f")csat.facil++;else if(tail[0]==="m")csat.media++;else if(tail[0]==="d")csat.dificil++;else csat.inatividade++;}}
+    if(c==="perfil selecao"){for(const it of items){const v=String(it.action||"").trim().toLowerCase();if(v.indexOf("cliente")===0)perfilB.cliente++;else if(v.indexOf("danone")>=0)perfilB.danoner++;else if(v.indexOf("inativ")>=0)perfilB.inativ++;else perfilB.inesp++;}}
+    if(c==="cliente selecao"){for(const it of items){const v=String(it.action||"").trim().toLowerCase();if(v.indexOf("cnpj")>=0)clienteB.cnpj++;else if(v.indexOf("digo")>=0)clienteB.codigo++;else if(v.indexOf("inativ")>=0)clienteB.inativ++;else clienteB.inesp++;}}
+  }catch(e){catCount[c]=0;}done++;if(prog)prog(done,cats.length,"event-track");}}
+  await Promise.all(Array.from({length:8},worker));
+  const cc=n=>catCount[n]||0;
+  // recs
+  const universe=new Set([...Object.keys(active),...Object.keys(journeys)]);const recs=[];
+  universe.forEach(ph=>{const evs=(journeys[ph]||[]).slice().sort((a,b)=>((a.dt?a.dt.getTime():0)-(b.dt?b.dt.getTime():0)));
+    const c=active[ph]||allc[ph]||{};const ex=c.extras||{};const cset=evs.map(e=>e.cat);
+    const f={any:evs.length>0,store_ok:inset(STORE_OK,cset),order_found:inset(ORDER_FOUND,cset),order_nf:inset(ORDER_NF,cset),order_any:inset(ORDER_ANY,cset),finalized:inset(FINAL,cset),invalid:inset(INVALID,cset),valid:inset(VALID,cset)};
+    let narr;if(!evs.length){narr="Apareceu como ativo (trocou mensagem), mas sem passo de jornada rastreável — provavelmente só saudação e/ou atendimento humano (transbordo não grava telefone no event-track).";}
+    else{const n=[];if(f.valid)n.push("informou um código válido");if(f.invalid){const typed=evs.filter(e=>INVALID.has(e.cat)&&e.raw).map(e=>e.raw).filter(x=>!/^\s*[\d ]+\s*$/.test(x)).join("; ").slice(0,120);n.push("teve código recusado"+(typed?(' (digitou: "'+typed+'")'):" (código incompleto/errado)"));}if(f.store_ok)n.push("a loja foi localizada");if(f.order_found)n.push("o pedido foi encontrado");else if(f.order_nf)n.push("consultou pedido mas nada foi encontrado");else if(f.order_any)n.push("consultou pedidos");n.push(f.finalized?"chegou à pesquisa de satisfação (concluiu)":"não chegou à pesquisa (provável abandono)");narr="Esse contato "+n.join(", ")+".";}
+    recs.push({phone:ph,name:c.name||"",tipo:ex.tipoUsuario||"",codigoLoja:ex.codigoLoja||"",cnpjLoja:ex.cnpjLoja||"",last:(c.lastMessageDate||"").slice(0,10),flags:f,narr,first:evs.length&&evs[0].dt?brIso(evs[0].dt):"",events:evs.map(e=>({t:brIso(e.dt),prec:e.prec,cat:e.cat,val:e.val}))});});
+  // desk
+  let desk={available:!!TK};
+  if(TK){try{const tr=await cmd("/tickets?$take=100",DESK,TK);const items=(tr.resource&&tr.resource.items)||[];
+    const per=items.filter(t=>{const d=dparse(t.storageDate);return d&&d>=P0&&d<=P1;});
+    const stt={};per.forEach(t=>stt[t.status]=(stt[t.status]||0)+1);
+    const q=[],fr=[],at=[],byag={};
+    const agn=t=>{const a=t.agentIdentity||t.closedBy||"—";return a.replace("%40","@").split("@")[0];};
+    per.forEach(t=>{const sd=dparse(t.storageDate),od=dparse(t.openDate),frd=dparse(t.firstResponseDate),cd=dparse(t.closeDate);
+      if(od&&sd)q.push((od-sd)/1000);if(frd&&od)fr.push((frd-od)/1000);if(cd&&od)at.push((cd-od)/1000);(byag[agn(t)]=byag[agn(t)]||[]).push(t);});
+    const agents=Object.keys(byag).filter(a=>a!=="—").sort((a,b)=>byag[b].length-byag[a].length).map(ag=>{const ts=byag[ag];const frs=[],ats=[];const sc={};ts.forEach(t=>{const od=dparse(t.openDate),frd=dparse(t.firstResponseDate),cd=dparse(t.closeDate);if(frd&&od)frs.push((frd-od)/1000);if(cd&&od)ats.push((cd-od)/1000);sc[t.status]=(sc[t.status]||0)+1;});return {name:ag,n:ts.length,fr:frs.length?fmtDur(avg(frs)):"—",at:ats.length?fmtDur(avg(ats)):"—",transferred:(sc.Transferred||0)===ts.length};});
+    desk={available:true,total:per.length,closed:stt.ClosedAttendant||0,transferred:stt.Transferred||0,waiting:stt.Waiting||0,open:stt.Open||0,lost:(stt.ClosedClient||0)+(stt.Canceled||0),queueAvg:fmtDur(avg(q)),queueMax:fmtDur(mx(q)),frAvg:fmtDur(avg(fr)),frMax:fmtDur(mx(fr)),attAvg:fmtDur(avg(at)),attMax:fmtDur(mx(at)),agents};
+  }catch(e){desk={available:false};}}
+  // onepage
+  const diff=msg.previousPeriodDiff||{};const fd=flowR.flowMetricsPreviousPeriodDiff||{};const satV=csat.facil+csat.media+csat.dificil;
+  const onepage={users:{active:actR,engaged:engR,recCount:recR.recurrentIdentitiesCount,recRate:pct(recR.recurrentIdentitiesRate),recVar:pct(recR.recurrentIdentitiesCountVariation),rejection:(actR!=null&&engR!=null&&actR===engR)?0:null},
+    messages:{total:msg.totalMessages,sent:msg.sentMessages,received:msg.receivedMessages,active:msg.activeMessages,sentPct:pct(msg.sentRate),receivedPct:pct(msg.receivedRate),totalVar:pct(diff.totalMessagesVariation),sentVar:pct(diff.sentMessagesVariation),receivedVar:pct(diff.receivedMessagesVariation),activeVar:pct(diff.activeMessagesVariation)},
+    flow:{retention:flowR.usersRetention,retentionPct:pct(flowR.retentionUsersRate),attendance:flowR.usersInAttendance,attendancePct:pct(flowR.attendanceUsersRate),exception:flowR.usersInException,exceptionPct:pct(flowR.exceptionUsersRate),total:flowR.totalUsers,retentionVar:pct(fd.UsersRetentionVariation),attendanceVar:pct(fd.UsersInAttendanceVariation),exceptionVar:pct(fd.UsersInExceptionVariation)},
+    blocks:blkR.map(b=>({name:b.blockName,count:b.count})).slice(0,10),
+    kpis:{codValido:cc("codigo danoner relatório válido"),codInvalido:cc("codigo danoner relatório inválido"),lojasLocalizadas:cc("relatorio dados lojas encontrado"),lojaNFcnpj:cc("loja não encontrada cnpj exibicao"),lojaNFcod:cc("loja não encontrada exibicao"),pedidosNF:cc("pedido não encontrado dados"),transbInicial:cc("transbordo inicial exibicao"),transbAtend:cc("transbordo atendimento exibicao"),transbForaH:cc("transbordo fora horario exibicao"),finalizadosBot:cc("atendimentos finalizados no chatbot exibicao"),inatividade:cc("Inatividade selecao")},
+    satisfaction:{facil:csat.facil,media:csat.media,dificil:csat.dificil,validas:satV,inatividade:csat.inatividade},desk};
+  const funnel={perfil_sel:cc("perfil selecao"),perfil_err:cc("perfil inesperado"),
+    danoner_input:cc("codigo danoner input"),danoner_ok:cc("relatório lojas validada"),danoner_nf:cc("loja não encontrada exibicao"),
+    perfil_cliente:perfilB.cliente,perfil_danoner:perfilB.danoner,perfil_inativ:perfilB.inativ,perfil_inesp:perfilB.inesp,
+    cliente_sel:cc("cliente selecao"),cliente_cnpj:clienteB.cnpj,cliente_codigo:clienteB.codigo,cliente_inativ:clienteB.inativ,
+    cli_cod_input:cc("codigo cliente input"),cli_cod_err:cc("codigo cliente inesperado"),
+    cli_cnpj_input:cc("cnpj input"),cli_cnpj_err:cc("cnpj inesperado"),cnpj_ok:cc("loja encontrada cnpj exibicao"),cnpj_nf:cc("loja não encontrada cnpj exibicao"),
+    pedidos_ok:cc("status pedidos exibicao"),pedidos_mais:cc("mais pedidos exibicao"),pedidos_espec:cc("pedido especifico exibicao"),pedidos_nf:cc("pedido não encontrado exibicao"),
+    transb_inicial:cc("transbordo inicial exibicao"),transb_atend:cc("transbordo atendimento exibicao"),transb_fora:cc("transbordo fora horario exibicao"),
+    transbordados:cc("atendimentos transbordados exibicao"),finalizados_bot:cc("atendimentos finalizados no chatbot exibicao"),
+    csat_exib:cc("pesquisa csat exibicao"),csat_facil:csat.facil,csat_media:csat.media,csat_dificil:csat.dificil,csat_inatividade:csat.inatividade};
+  const now=new Date();const pp=n=>String(n).padStart(2,"0");const ts=`${pp(now.getDate())}/${pp(now.getMonth()+1)}/${now.getFullYear()} ${pp(now.getHours())}:${pp(now.getMinutes())}`;
+  return {period:{start,end},ts,onepage,funnel,recs};
+}
+
+/* ============ UI ============ */
+function paint(data){document.getElementById("f0").srcdoc=renderOnePageDoc(data);document.getElementById("f1").srcdoc=renderDetDoc(data);document.getElementById("f2").srcdoc=renderFunilDoc(data);document.getElementById("ts").textContent=data.ts||"—";try{localStorage.setItem("relatorio_data_v3",JSON.stringify(data));}catch(e){}}
+function show(i){for(let k=0;k<3;k++){document.getElementById("t"+k).classList.toggle("active",k===i);document.getElementById("f"+k).classList.toggle("active",k===i);}}
+function todayStr(){const d=new Date();const p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
+function showProg(t){document.getElementById("prog").style.display="flex";document.getElementById("progtxt").textContent=t||"";document.getElementById("progbar").style.width="2%";}
+function setProg(d,t,lbl){document.getElementById("progtxt").textContent=`${lbl||""} ${d}/${t}`;document.getElementById("progbar").style.width=Math.round(d/t*100)+"%";}
+function hideProg(){document.getElementById("prog").style.display="none";}
+async function doRefresh(){const btn=document.getElementById("btnUp");btn.disabled=true;const t=btn.textContent;btn.textContent="Atualizando…";showProg("iniciando…");
+  try{const data=await collectAll(PERIOD_START,todayStr(),setProg);paint(data);}catch(e){alert("Erro ao atualizar: "+e.message);}
+  hideProg();btn.disabled=false;btn.textContent=t;}
+let boot=INITIAL_DATA;try{const c=localStorage.getItem("relatorio_data_v3");if(c)boot=JSON.parse(c);}catch(e){}
+paint(boot);
+</script></body></html>

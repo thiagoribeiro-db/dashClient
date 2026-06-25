@@ -33,11 +33,14 @@ jobs:
           BLIP_START: ${{ inputs.start_date || vars.BLIP_START }}
         run: python gerar_snapshot.py
 
-      - name: Commit e push do snapshot
+      - name: Gerar index.html
+        run: python build_index.py
+
+      - name: Commit e push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add _snapshot.json
+          git add _snapshot.json index.html
           git diff --cached --quiet \
-            && echo "Nenhuma mudança no snapshot." \
+            && echo "Nenhuma mudança." \
             || (git commit -m "data: snapshot $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)
