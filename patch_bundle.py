@@ -20,6 +20,21 @@ AUTO_LOAD = (
     r"const fp=document.getElementById('folderPanel');if(fp)fp.style.display='none';"
     r"const mw=document.getElementById('manualWrap');if(mw)mw.style.display='none';"
     r"processData();"
+    # Override botão após init() terminar de registrar seus listeners
+    r"setTimeout(()=>{"
+    r"const pb=document.getElementById('processBtn');"
+    r"if(pb){"
+    r"const pb2=pb.cloneNode(true);pb.parentNode.replaceChild(pb2,pb);"
+    r"pb2.disabled=false;"
+    r"pb2.addEventListener('click',async()=>{"
+    r"pb2.disabled=true;"
+    r"try{"
+    r"const[a,b]=await Promise.all([fetch('_events.csv?r='+Math.random()),fetch('_tickets.csv?r='+Math.random())]);"
+    r"if(a.ok&&b.ok){RAW.events=await a.text();RAW.tickets=await b.text();processData();}"
+    r"}catch(e){}"
+    r"pb2.disabled=false;"
+    r"});"
+    r"}},200);"
     r"}}catch(e){}"
 )
 
