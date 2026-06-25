@@ -19,7 +19,7 @@ AUTO_LOAD = (
     r"RAW.events=await evR.text();RAW.tickets=await tkR.text();"
     r"const fp=document.getElementById('folderPanel');if(fp)fp.style.display='none';"
     r"const mw=document.getElementById('manualWrap');if(mw)mw.style.display='none';"
-    r"processData();return;"
+    r"processData();"
     r"}}catch(e){}"
 )
 
