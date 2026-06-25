@@ -1,4 +1,4 @@
-name: Atualizar Dashboard Danone CAC
+name: Atualizar Dashboard
 
 on:
   schedule:
