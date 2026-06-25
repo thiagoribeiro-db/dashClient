@@ -33,7 +33,22 @@ if MARKER not in content:
 
 content = content.replace(MARKER, MARKER + AUTO_LOAD + r"\n", 1)
 
+# Patch: KPI de Atendimento usa total de registros (sem deduplicação de usuário)
+PATCHES = [
+    (
+        "value:TK.users.size, sub:'Atendidos por humano'",
+        "value:TK.rows.length, sub:'Total de atendimentos'"
+    ),
+]
+
+for old, new in PATCHES:
+    if old not in content:
+        print(f"AVISO: trecho não encontrado para patch: {old[:60]}")
+    else:
+        content = content.replace(old, new, 1)
+        print(f"OK patch: {old[:50]}...")
+
 with open(OUTPUT, "w", encoding="utf-8") as f:
     f.write(content)
 
-print(f"OK: {OUTPUT} gerado com auto-load injetado a partir de '{SOURCE}'")
+print(f"OK: {OUTPUT} gerado com auto-load + patches a partir de '{SOURCE}'")
